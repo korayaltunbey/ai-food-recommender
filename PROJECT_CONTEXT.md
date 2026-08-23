@@ -1,4 +1,4 @@
-# Project Context — Akşam Ne Yesem? (foofSuggestion)
+# Project Context — ai-food-recommender / Akşam Ne Yesem?
 
 > Bu dosya, yeni Codex sohbetlerinde projenin mevcut durumunu hızlıca anlamak için yaşayan proje hafızasıdır.
 > Önemli görevlerin sonunda tamamlanan işler, mimari kararlar, değişiklikler ve sıradaki iş güncellenmelidir.
@@ -24,7 +24,7 @@ Kullanıcının elindeki malzemeleri veya genel tercihlerini kullanarak yemek ö
 - Next.js App Router
 - Local SQLite database ve Drizzle ORM altyapısı eklendi.
 - SQLite bağlantısı `better-sqlite3` üzerinden server tarafında çalışır.
-- Şu anda yemek kataloğu/seed verisi yok; yemekler DeepSeek tarafından runtime’da üretiliyor.
+- İlk Türk Mutfağı seed kataloğu eklendi; mevcut API’ler hâlâ DeepSeek tarafından runtime’da çalışıyor.
 
 ## Mevcut mimari
 
@@ -107,9 +107,14 @@ Tema tercihi        -> foof-theme
 - `lib/requests.ts`: API gövdelerini temizler ve sınırlar; kişi sayısı 1–20, dışlama listeleri en fazla 50 öğe.
 - `lib/types.ts`: `SuggestionMode`, `Recipe`, `DishSuggestion`, `SuggestionRequest`, `RecipeRequest`, `SavedRecipe` ve ilgili tipler.
 - `db/schema.ts`: SQLite + Drizzle tarif kataloğu şeması.
-- `lib/db.ts`: Local `data/foof.db` için server-side Drizzle bağlantısı.
+- `lib/db.ts`: Local `data/ai-food-recommender.db` için server-side Drizzle bağlantısı.
 - `drizzle.config.ts`: Drizzle Kit schema, migration ve SQLite database yapılandırması.
 - `drizzle/`: İlk SQL migration’ı ve Drizzle metadata dosyaları.
+- `db/seed.ts`: Tekrarlanabilir 25 tariflik Türk Mutfağı seed verisi ve idempotent seed işlemi.
+- `lib/recipe-repository.ts`: SQLite + Drizzle üzerinden tarif sorgulama ve ilişkili verileri yükleme katmanı.
+- `lib/recommendations.ts`: Ingredient normalization, eşleşme, skor, filtreleme ve yerel öneri algoritması.
+- `lib/recipe-mapper.ts`: Database tariflerini mevcut `Recipe` tipine dönüştürme ve porsiyon ölçekleme katmanı.
+- `npm run db:seed`: Seed dosyasını local SQLite database’e uygular.
 
 ## DeepSeek’in mevcut kullanım alanları
 
@@ -128,7 +133,7 @@ DeepSeek’e ait environment değişkenleri:
 
 ## Mevcut yemek/veri modeli
 
-Kalıcı yemek kataloğu bulunmuyor. Tarif ve öneri verisi DeepSeek yanıtından geliyor.
+Kalıcı yemek kataloğu local SQLite database’de bulunuyor. Öneri ve tarif API’leri henüz bu kataloğu kullanmıyor; runtime veri üretimi hâlâ DeepSeek üzerinden.
 
 Mevcut `Recipe` yapısında malzeme miktarı string’dir:
 
@@ -189,13 +194,33 @@ Authentication olmadığı için kullanıcıya özel geçmişin database’e ta�
 - Mevcut proje mimarisi ve AI → database dönüşüm kapsamı analiz edildi.
 - `PROJECT_CONTEXT.md` proje hafızası olarak oluşturuldu.
 - `drizzle-orm`, `better-sqlite3`, `drizzle-kit` ve `@types/better-sqlite3` paketleri eklendi.
-- Local SQLite database dosyası `data/foof.db` oluşturuldu ve gitignore’a alındı.
+- Local SQLite database dosyası `data/ai-food-recommender.db` olarak tutulur ve gitignore’a alınır.
 - `recipes`, `ingredients`, `recipe_ingredients`, `recipe_steps` ve `recipe_diets` tabloları için ilk migration üretildi ve uygulandı.
 - Database tabloları, index’ler ve foreign key’ler SQLite metadata’sından doğrulandı.
+- `db/seed.ts` ile 25 gerçek ve yaygın Türk Mutfağı tarifi seed edildi.
+- Seed sonrası database’de 25 tarif, 54 unique ingredient, 216 tarif-malzeme, 127 tarif adımı ve 44 diyet ilişkisi doğrulandı.
+- Seed ikinci kez çalıştırılarak tarif ve ingredient duplicate’i üretmediği doğrulandı.
+- Kategori dağılımı doğrulandı: 4 Kahvaltı, 4 Çorba, 6 Ana yemek, 4 Hamur işi, 4 Salata/meze, 3 Tatlı.
+- Proje adı `ai-food-recommender` olarak güncellendi.
+- SQLite dosyası mevcut veriler korunarak `data/ai-food-recommender.db` yoluna taşındı.
+- Paket adı, README ve Drizzle database yolu yeni proje adıyla tutarlı hale getirildi.
+- `lib/recipe-repository.ts` oluşturuldu.
+- `lib/recommendations.ts` oluşturuldu.
+- `lib/recipe-mapper.ts` oluşturuldu.
+- SQLite + Drizzle üzerinden local recommendation altyapısı hazırlandı.
+- Ingredient normalization, ingredient matching ve `matchScore` sistemi hazırlandı.
+- Diyet, mutfak/yöre ve süre filtreleri; `excludeNames` ve `excludeIngredients` desteği hazırlandı.
+- Eksik zorunlu malzeme hesaplama ve varsayılan 5 öneri davranışı hazırlandı.
+- Recipe mapper, database tariflerini mevcut `Recipe` tipine dönüştürüyor.
+- Porsiyon miktarlarının ölçeklenmesi hazırlandı.
+- `Domates + Yumurta → Menemen` smoke testi başarılı oldu.
+- 2 → 4 kişilik miktar ölçekleme, `excludeNames`, diyet ve süre filtreleri başarılı oldu.
+- Lint başarılı oldu.
+- Build başarılı oldu.
 
 ## Şu anda üzerinde çalışılan işler
 
-Database altyapısı tamamlandı. DeepSeek, mevcut API route’ları ve frontend henüz değiştirilmedi. Sıradaki çalışma, seed tarif kataloğunu hazırlamak ve database repository katmanını yazmaktır.
+Database altyapısı, ilk Türk Mutfağı seed kataloğu, proje adlandırma temizliği ve local recommendation servisleri tamamlandı. Şu anda `/api/suggest` ve `/api/recipe` hâlâ eski DeepSeek sistemini kullanıyor. Yeni local recommendation servisi henüz API route’larına bağlanmadı. DeepSeek henüz kaldırılmadı ve frontend henüz değiştirilmedi. LocalStorage anahtarları bilinçli olarak legacy `foof-*` isimleriyle korunuyor; migration daha sonraki ayrı bir iştir.
 
 ## Önemli mimari kararlar
 
@@ -203,18 +228,22 @@ Database altyapısı tamamlandı. DeepSeek, mevcut API route’ları ve frontend
 - UI, öneri listesi ve tarif detayını iki ayrı API çağrısıyla alır.
 - API route’ları `app/api/**/route.ts` altında App Router Route Handler olarak kalır.
 - Database katmanı UI’dan ayrılmalı; route’lar repository/service fonksiyonlarını çağırmalıdır.
+- Local recommendation katmanı `lib/recipe-repository.ts`, `lib/recommendations.ts` ve `lib/recipe-mapper.ts` altında route’lardan bağımsız tutulur.
+- `/api/suggest` ve `/api/recipe` henüz DeepSeek tabanlıdır; local recommendation servisleri henüz route’lara bağlanmamıştır.
+- Database recommendation katmanı mevcut `Recipe` response tipini ve porsiyon ölçekleme davranışını korur.
 - Öneri algoritması database sorgusu + uygulama katmanında puanlama şeklinde çalışmalıdır.
 - `dishName` yerine database geçişinde `recipeId` veya `slug` kullanılması tercih edilir.
 - Database tarif kataloğu için tercih Drizzle ORM + local SQLite’tır.
-- Database dosyası `data/foof.db` altında tutulur; Turso/libSQL veya başka harici database kullanılmaz.
+- Database dosyası `data/ai-food-recommender.db` altında tutulur; Turso/libSQL veya başka harici database kullanılmaz.
 - Drizzle schema `db/schema.ts`, bağlantı `lib/db.ts`, migration çıktısı `drizzle/` altındadır.
 - Local SQLite dosyaları repository’ye eklenmez; migration dosyaları kaynak kontrolünde tutulur.
+- LocalStorage anahtarları (`foof-*`) bu aşamada değiştirilmez; mevcut kullanıcı verilerini korumak için ayrı migration planlanır.
 - Authentication eklenene kadar tema, anonim geçmiş ve yapılan yemekler localStorage’da kalabilir.
 - Tarif malzeme miktarları database’de sayısal miktar ve birim olarak tutulmalıdır.
 
 ## Bilinen problemler ve riskler
 
-- Kalıcı tarif database’i ve seed verisi yok.
+- Seed kataloğu şu anda yalnızca Türk Mutfağı tariflerinden oluşuyor; dünya mutfakları henüz eklenmedi.
 - AI yanıtlarına bağımlılık nedeniyle aynı istek her zaman aynı sonucu vermeyebilir.
 - Kişi sayısına göre ölçekleme şu anda AI promptuna bağlıdır; deterministik değildir.
 - `RecipeIngredient.amount` string olduğu için database tarafında güvenilir ölçekleme yapılamaz.
@@ -226,13 +255,12 @@ Database altyapısı tamamlandı. DeepSeek, mevcut API route’ları ve frontend
 
 ## Sıradaki yapılacak iş
 
-İlk altyapı adımı tamamlandı. Sıradaki iş, mevcut şemaya uygun örnek seed dataset’i hazırlamak ve yalnızca server tarafında kullanılacak tarif repository fonksiyonlarını eklemektir. Bundan sonra API route’ları database’e bağlanmadan önce şu kararlar netleştirilmelidir:
+Local recommendation servisleri hazır; henüz API route entegrasyonu yapılmadı.
 
-1. Seed kataloğunun başlangıç tarifleri ve veri doğrulama yöntemi.
-2. Türkçe malzeme normalizasyonunun kesin kuralları.
-3. Öneri puanlamasında temel kiler malzemelerinin ağırlığı.
-4. Anonim kullanıcı geçmişinin localStorage’da kalıp kalmayacağı.
-5. Repository response’larının mevcut `Recipe` ve `DishSuggestion` tiplerine nasıl eşleneceği.
+1. `/api/suggest` route’unu local recommendation servisine bağla.
+2. Entegrasyonu ve mevcut frontend akışını test et.
+3. `/api/recipe` route’unu database tarif sorgulama ve mapper katmanına geçir.
+4. DeepSeek bağımlılıklarını, prompt/parser katmanını ve ilgili environment/dokümantasyon referanslarını kaldır.
 
 ## AI → database migration planı
 
@@ -248,12 +276,14 @@ Database altyapısı tamamlandı. DeepSeek, mevcut API route’ları ve frontend
    - String miktar yerine sayısal miktar + birim kullan.
 
 3. **Seed kataloğu oluştur**
-   - İlk etapta 20–50 gerçek ve doğrulanmış tarif ekle.
+   - 25 gerçek ve doğrulanmış Türk Mutfağı tarifi `db/seed.ts` ile eklendi.
 
 4. **Database katmanını ekle**
    - Drizzle + local SQLite bağlantısı.
    - Server-only `lib/db.ts`.
    - Tarif repository fonksiyonları.
+
+    - Database altyapısı ve repository/recommendation servisleri tamamlandı; route entegrasyonu sıradaki iştir.
 
 5. **Öneri repository’sini yaz**
    - `getRecipeById`
@@ -299,4 +329,9 @@ Database altyapısı tamamlandı. DeepSeek, mevcut API route’ları ve frontend
 
 ## Context güncelleme notu
 
-Bu dosya son olarak mevcut proje analizi sonrasında, kod değişikliği yapılmadan güncellenmiştir. Yeni önemli görevlerin sonunda bu bölüm ve ilgili bölümler güncellenmelidir.
+Bu dosya son olarak local SQLite + Drizzle recommendation servislerinin oluşturulması ve smoke testlerinin tamamlanması sonrasında güncellenmiştir. Yeni önemli görevlerin sonunda bu bölüm ve ilgili bölümler güncellenmelidir.
+
+## Güncelleme
+
+- Tarih: 2026-08-23
+- Mevcut aşama: Local SQLite + Drizzle recommendation servisleri hazır; API route entegrasyonu henüz yapılmadı.

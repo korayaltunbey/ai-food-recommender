@@ -1,4 +1,4 @@
-# Akşam Ne Yesem? (foodSuggestion)
+# Akşam Ne Yesem? (ai-food-recommender)
 
 Dolaptaki malzemeleri verip sana o malzemelerle bir yemek öneren, kişi sayısına göre ölçeklenmiş ölçüleri ve adım adım tarifi sunan web uygulaması.
 
