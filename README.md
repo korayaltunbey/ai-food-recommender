@@ -1,4 +1,4 @@
-# Akşam Ne Yesem? (foofSuggestion)
+# Akşam Ne Yesem? (foodSuggestion)
 
 Dolaptaki malzemeleri verip sana o malzemelerle bir yemek öneren, kişi sayısına göre ölçeklenmiş ölçüleri ve adım adım tarifi sunan web uygulaması.
 
