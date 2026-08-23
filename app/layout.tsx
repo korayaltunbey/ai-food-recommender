@@ -1,0 +1,51 @@
+// Kök düzen (layout): her sayfanın ortak iskeleti.
+// - Font ayarları
+// - Sayfa başlığı/açıklaması ve favicon
+// - Tema başlatma senaryosu (boyanmadan önce)
+// - Sabit üst bar ve içerik alanı
+
+import type { Metadata } from "next";
+import { Spline_Sans_Mono } from "next/font/google"; // Berkeley Mono'nun ücretsiz alternatifi
+import { themeInitScript } from "@/lib/theme"; // ilk boyamadan önce temayı uygulayan kod
+import Header from "@/components/Header"; // her sayfada görünen üst bar
+import { InlineScript } from "@/app/components/InlineScript"; // hydration-güvenli inline script
+import "./globals.css";
+
+// Spline Sans Mono fontunu tanımlar; latin-ext Türkçe karakterleri (ş,ğ,ı...) kapsar
+const splineMono = Spline_Sans_Mono({
+  variable: "--font-spline-mono",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
+});
+
+// Tüm sayfaların ortak meta verisi (tarayıcı sekmesi + arama motorları)
+export const metadata: Metadata = {
+  title: "Akşam Ne Yesem?",
+  description: "Dolaptakilerle ya da keyfine göre yemek önerisi ve ölçekli tarif.",
+  icons: {
+    icon: "/icon.svg", // yemek temalı favicon
+  },
+};
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  return (
+    // suppressHydrationWarning: tema script'i hydration'dan önce <html> sınıfını
+    // değiştirdiği için React'e bu öğeyi karşılaştırmamasını söyler.
+    // Bu olmazsa hydration uyuşmazlığı tüm uygulamanın çökmesine yol açar.
+    <html
+      lang="tr"
+      suppressHydrationWarning
+      className={`${splineMono.variable} h-full antialiased`}
+    >
+      <head>
+        {/* Kayıtlı temayı sayfa boyanmadan önce uygular (yanıp sönmeyi engeller) */}
+        <InlineScript html={themeInitScript()} />
+      </head>
+      <body className="min-h-full flex flex-col">
+        {/* Üst bar her sayfada sabittir */}
+        <Header />
+        {children}
+      </body>
+    </html>
+  );
+}

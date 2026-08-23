@@ -1,0 +1,37 @@
+/* Tailwind CSS v4 girişi: tüm yardımcı sınıflar bu satırdan üretilir */
+@import "tailwindcss";
+
+/* Koyu modu .dark sınıfına bağlar: html'de .dark varsa dark: sınıfları devreye girer */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Varsayılan (koyu) tema değişkenleri:
+   Varsayılan görünüm koyudur; açık tema sadece html'de .dark yokken uygulanır */
+:root {
+  --background: #0c0a09;
+  --foreground: #e7e5e4;
+  color-scheme: dark;
+}
+
+/* Açık tema: html'de .dark sınıfı YOKSA bu değerler geçerli olur */
+:root:not(.dark) {
+  --background: #f5f5f4;
+  --foreground: #1c1917;
+  color-scheme: light;
+}
+
+/* Tema değişkenlerini Tailwind'in tema sistemine tanıtır.
+   inline sayesinde bg-background gibi sınıflar değişkeni doğrudan kullanır */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  /* Uygulama fontu: Spline Sans Mono (Berkeley Mono'nun ücretsiz benzeri) */
+  --font-sans: var(--font-spline-mono), ui-monospace, monospace;
+  --font-mono: var(--font-spline-mono), ui-monospace, monospace;
+}
+
+/* Sayfa zemini ve metin rengi tema değişkeninden gelir */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
