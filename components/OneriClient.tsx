@@ -454,7 +454,9 @@ export default function OneriClient({ initialMode }: OneriClientProps) {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="flex items-center gap-2 text-sm font-bold text-stone-700 dark:text-stone-300">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
-              Sana 5 yemek buldum
+              {suggestions.length > 0
+                ? `Sana ${suggestions.length} yemek buldum`
+                : "Uygun yemek bulunamadı"}
             </h2>
             <button
               onClick={generateList}
@@ -464,10 +466,12 @@ export default function OneriClient({ initialMode }: OneriClientProps) {
               Başka Liste
             </button>
           </div>
-          <p className="text-sm text-stone-500 dark:text-stone-400">
-            Birine tıkla, tam tarifini göstereyim.
-          </p>
-          <ul className="space-y-3">
+          {suggestions.length > 0 && (
+            <p className="text-sm text-stone-500 dark:text-stone-400">
+              Birine tıkla, tam tarifini göstereyim.
+            </p>
+          )}
+          <ul className={suggestions.length > 0 ? "space-y-3" : "hidden"}>
             {suggestions.map((s, i) => (
               <li key={s.name}>
                 <button
@@ -505,6 +509,11 @@ export default function OneriClient({ initialMode }: OneriClientProps) {
               </li>
             ))}
           </ul>
+          {suggestions.length === 0 && (
+            <p className="rounded-lg border border-stone-200 bg-white p-4 text-sm text-stone-500 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-400">
+              Seçtiğin malzemelerle şu anda uygun bir yemek bulunamadı.
+            </p>
+          )}
         </section>
       )}
 
