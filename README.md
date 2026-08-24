@@ -28,7 +28,7 @@ Elinizdeki malzemelere ve tercihlerinize göre uygun yemekleri keşfetmenizi sa�
 
 Tarif kataloğu yerel SQLite veritabanından okunur. Recommendation katmanı malzeme eşleşmesini, ingredient coverage değerini, skorlamayı ve filtreleri uygular. Tarif seçildiğinde aynı katalogdan tarif detayları alınır ve miktarlar kişi sayısına göre ölçeklenir.
 
-Uygulama runtime sırasında harici bir yemek üretim servisine ihtiyaç duymaz.
+Uygulama çalışma sırasında harici bir yemek üretim servisine ihtiyaç duymaz.
 
 Mevcut katalogda 194 tarif bulunur. Katalog farklı mutfakları, kategorileri, diyet etiketlerini ve süre aralıklarını kapsar.
 
@@ -40,7 +40,7 @@ Bağımlılıkları kurun:
 npm install
 ```
 
-Veritabanı şemasını hazırlayın ve mevcut seed kataloğunu uygulayın:
+Veritabanı şemasını hazırlayın ve seed kataloğunu uygulayın:
 
 ```bash
 npm run db:migrate
@@ -63,25 +63,26 @@ npm run build                  # Production derlemesi
 npm run start                  # Production sunucusu
 npm run lint                   # ESLint kontrolü
 npm run test:recommendations   # Recommendation regression testleri
-npm run db:migrate             # SQLite migration'larını uygular
+npm run db:generate            # Drizzle migration dosyası oluşturma
+npm run db:migrate             # SQLite migration'larını uygulama
 npm run db:seed                # Idempotent seed işlemi
 ```
 
 ## Proje yapısı
 
-```text
-app/api/suggest/route.ts        Öneri endpoint'i
-app/api/recipe/route.ts         Tarif detay endpoint'i
-components/OneriClient.tsx      Öneri ve tarif detay akışı
-components/MalzemeGirisi.tsx    Malzeme girişi ve hızlı seçimler
-lib/db.ts                       SQLite + Drizzle bağlantısı
-lib/recipe-repository.ts        Tarif sorguları
-lib/recommendations.ts          Eşleşme, scoring ve filtreler
-lib/recipe-mapper.ts            Tarif ve miktar ölçekleme
-db/schema.ts                    Veritabanı şeması
-db/seed.ts                      Tarif kataloğu seed'i
-scripts/test-recommendations.ts Recommendation regression testleri
-```
+| Dosya veya klasör | Görevi |
+| --- | --- |
+| `app/api/suggest/route.ts` | Öneri endpoint'i |
+| `app/api/recipe/route.ts` | Tarif detay endpoint'i |
+| `components/OneriClient.tsx` | Öneri ve tarif detay akışı |
+| `components/MalzemeGirisi.tsx` | Malzeme girişi ve hızlı seçimler |
+| `lib/db.ts` | SQLite + Drizzle bağlantısı |
+| `lib/recipe-repository.ts` | Tarif sorguları |
+| `lib/recommendations.ts` | Eşleşme, scoring ve filtreler |
+| `lib/recipe-mapper.ts` | Tarif ve miktar ölçekleme |
+| `db/schema.ts` | Veritabanı şeması |
+| `db/seed.ts` | Tarif kataloğu seed'i |
+| `scripts/test-recommendations.ts` | Recommendation regression testleri |
 
 ## Test
 
@@ -103,6 +104,13 @@ npm run build
 
 ## Veritabanı
 
-Veritabanı `data/aksam-ne-yesem.db` dosyasında tutulur. Mevcut veriler yeni dosya adına taşınarak korunmuştur; yeniden oluşturulmamıştır. Şema `db/schema.ts`, migration dosyaları `drizzle/`, seed kataloğu ise `db/seed.ts` içindedir.
+Uygulamanın çalışma zamanında kullandığı veritabanı, yerel SQLite dosyası `data/aksam-ne-yesem.db` konumundadır. Şema `db/schema.ts` ve migration dosyaları `drizzle/` altında tutulur.
 
-Kullanıcıya ait anonim geçmiş verileri tarayıcı localStorage'ında tutulur. Mevcut `foof-*` anahtarları geriye dönük uyumluluk için korunur.
+194 tariflik katalog `db/seed.ts` üzerinden oluşturulur. Yeni bir yerel veritabanı hazırlamak için migration ve seed komutlarını çalıştırabilirsiniz:
+
+```bash
+npm run db:migrate
+npm run db:seed
+```
+
+Bu işlem katalog verisini seed tanımlarından yeniden oluşturur.
