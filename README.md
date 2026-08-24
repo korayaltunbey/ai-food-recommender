@@ -1,87 +1,108 @@
 # Akşam Ne Yesem?
 
-Elindeki malzemelere veya seçtiğin filtrelere göre yemek öneren, tarifleri kişi sayısına göre ölçekleyen yerel yemek öneri uygulaması.
+Elinizdeki malzemelere ve tercihlerinize göre uygun yemekleri keşfetmenizi sağlayan bir yemek öneri uygulaması.
 
 ## Özellikler
 
-- Dolaptaki malzemelerle öneri
-- Malzeme girmeden genel öneri
+- Dolaptaki malzemelere göre yemek önerme
+- Malzeme girmeden genel yemek önerileri alma
 - En fazla 5 yemeklik sonuç listesi
-- Diyet, mutfak ve maksimum süre filtreleri
-- Tarif detayları ve kişi sayısına göre miktar ölçekleme
-- Daha önce önerilen ve yapılan yemekleri localStorage ile tekrar önermeme
+- Mutfak, diyet ve maksimum süre filtreleri
+- Elle malzeme girişi ve sık kullanılan malzeme seçenekleri
+- Tarif detaylarını görüntüleme
+- Tarif miktarlarını kişi sayısına göre ölçekleme
+- Daha önce önerilen veya yapılan yemekleri tekrar önermeme
 - Tarif kaydetme, kopyalama ve tema tercihi
 
-## Veri ve çalışma şekli
+## Kullanılan teknolojiler
 
-Tarif kataloğu `data/ai-food-recommender.db` içindeki SQLite veritabanında tutulur. Drizzle ORM, repository ve recommendation katmanları birlikte çalışır; runtime sırasında DeepSeek veya başka bir AI API çağrısı yapılmaz.
+- Next.js 16 ve App Router
+- React 19
+- TypeScript
+- Tailwind CSS
+- SQLite
+- Drizzle ORM
+- better-sqlite3
 
-Mevcut katalog 194 tarif içerir ve birden fazla mutfak, kategori, diyet etiketi ve süre aralığını kapsar. Seed işlemi idempotenttir.
+## Nasıl çalışır?
 
-Akış:
+Tarif kataloğu yerel SQLite veritabanından okunur. Recommendation katmanı malzeme eşleşmesini, ingredient coverage değerini, skorlamayı ve filtreleri uygular. Tarif seçildiğinde aynı katalogdan tarif detayları alınır ve miktarlar kişi sayısına göre ölçeklenir.
 
-```text
-OneriClient
-  -> POST /api/suggest
-  -> parseSuggestionRequest
-  -> recipe-repository + recommendations
-  -> SQLite tarif kataloğu
+Uygulama runtime sırasında harici bir yemek üretim servisine ihtiyaç duymaz.
 
-Tarif seçimi
-  -> POST /api/recipe
-  -> SQLite repository
-  -> kişi sayısına göre ölçeklenmiş tarif
-```
+Mevcut katalogda 194 tarif bulunur. Katalog farklı mutfakları, kategorileri, diyet etiketlerini ve süre aralıklarını kapsar.
 
 ## Kurulum
 
-1. Bağımlılıkları kur:
+Bağımlılıkları kurun:
 
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-2. Veritabanını oluştur ve seed et:
+Veritabanı şemasını hazırlayın ve mevcut seed kataloğunu uygulayın:
 
-   ```bash
-   npm run db:migrate
-   npm run db:seed
-   ```
+```bash
+npm run db:migrate
+npm run db:seed
+```
 
-3. Geliştirme sunucusunu başlat:
+Geliştirme sunucusunu başlatın:
 
-   ```bash
-   npm run dev
-   ```
+```bash
+npm run dev
+```
 
-4. Tarayıcıda `http://localhost:3000` adresini aç.
+Ardından `http://localhost:3000` adresini açın.
 
 ## Komutlar
 
 ```bash
-npm run dev                    # geliştirme sunucusu
-npm run build                  # production build
-npm run start                  # production sunucusu
-npm run lint                   # ESLint
-npm run test:recommendations   # recommendation regression testleri
-npm run db:migrate             # SQLite migration
-npm run db:seed                # idempotent seed
+npm run dev                    # Geliştirme sunucusu
+npm run build                  # Production derlemesi
+npm run start                  # Production sunucusu
+npm run lint                   # ESLint kontrolü
+npm run test:recommendations   # Recommendation regression testleri
+npm run db:migrate             # SQLite migration'larını uygular
+npm run db:seed                # Idempotent seed işlemi
 ```
 
 ## Proje yapısı
 
 ```text
-app/api/suggest/route.ts       Recommendation endpoint'i
-app/api/recipe/route.ts        Tarif detay endpoint'i
-components/OneriClient.tsx     Öneri ve tarif detay akışı
-components/MalzemeGirisi.tsx   Malzeme girişi ve hızlı seçimler
-lib/db.ts                      SQLite + Drizzle bağlantısı
-lib/recipe-repository.ts       Tarif sorguları
-lib/recommendations.ts         Ingredient matching, scoring ve filtreler
-lib/recipe-mapper.ts           Tarif ve miktar ölçekleme
-db/schema.ts                   Veritabanı şeması
-db/seed.ts                     Tarif kataloğu seed'i
+app/api/suggest/route.ts        Öneri endpoint'i
+app/api/recipe/route.ts         Tarif detay endpoint'i
+components/OneriClient.tsx      Öneri ve tarif detay akışı
+components/MalzemeGirisi.tsx    Malzeme girişi ve hızlı seçimler
+lib/db.ts                       SQLite + Drizzle bağlantısı
+lib/recipe-repository.ts        Tarif sorguları
+lib/recommendations.ts          Eşleşme, scoring ve filtreler
+lib/recipe-mapper.ts            Tarif ve miktar ölçekleme
+db/schema.ts                    Veritabanı şeması
+db/seed.ts                      Tarif kataloğu seed'i
 scripts/test-recommendations.ts Recommendation regression testleri
 ```
 
-Kullanıcıya ait anonim geçmiş verileri mevcut `foof-*` localStorage anahtarlarıyla korunur.
+## Test
+
+Recommendation testlerini çalıştırın:
+
+```bash
+npm run test:recommendations
+```
+
+Bu testler malzeme eşleşmesini, çoklu malzeme coverage sıralamasını, filtreleri, dışlama kurallarını ve porsiyon ölçeklemeyi kontrol eder.
+
+## Build
+
+Production derlemesini doğrulayın:
+
+```bash
+npm run build
+```
+
+## Veritabanı
+
+Veritabanı `data/aksam-ne-yesem.db` dosyasında tutulur. Mevcut veriler yeni dosya adına taşınarak korunmuştur; yeniden oluşturulmamıştır. Şema `db/schema.ts`, migration dosyaları `drizzle/`, seed kataloğu ise `db/seed.ts` içindedir.
+
+Kullanıcıya ait anonim geçmiş verileri tarayıcı localStorage'ında tutulur. Mevcut `foof-*` anahtarları geriye dönük uyumluluk için korunur.

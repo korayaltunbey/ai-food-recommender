@@ -3,7 +3,7 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 
 import * as schema from "../db/schema";
 
-const sqlite = new Database("./data/ai-food-recommender.db");
+const sqlite = new Database("./data/aksam-ne-yesem.db");
 sqlite.pragma("foreign_keys = ON");
 
 export const db = drizzle(sqlite, { schema });

@@ -1,18 +1,19 @@
-# Project Context — ai-food-recommender / Akşam Ne Yesem?
+# Proje Durumu — Akşam Ne Yesem?
 
 ## Mevcut durum
 
-Uygulama, kullanıcının malzemelerine veya filtrelerine göre yerel tarif kataloğundan yemek önerir. Runtime recommendation ve tarif detay akışlarında harici AI/DeepSeek API kullanılmaz.
+Akşam Ne Yesem?, elinizdeki malzemelere ve tercihlerinize göre uygun yemekleri keşfetmenizi sağlayan yerel bir yemek öneri uygulamasıdır.
 
-- Tarif kataloğu: `data/ai-food-recommender.db`
-- Veritabanı: SQLite
-- ORM: Drizzle
-- Güncel katalog: 194 tarif
-- API route'ları: `/api/suggest`, `/api/recipe`
-- Recommendation regression testleri: `scripts/test-recommendations.ts`
-- Son doğrulama: recommendation testleri, lint ve build başarılı
+- Paket adı: `aksam-ne-yesem`
+- Tarif kataloğu: 194 tarif
+- Veritabanı: `data/aksam-ne-yesem.db`
+- Veritabanı teknolojisi: SQLite + Drizzle ORM
+- Uygulama: Next.js App Router, React, TypeScript ve Tailwind CSS
+- API route'ları: `/api/suggest` ve `/api/recipe`
+- Regression testleri: `scripts/test-recommendations.ts`
+- Son doğrulama: recommendation testleri, lint ve production build başarılı
 
-## Mimari
+## Mimari ve veri akışı
 
 ```text
 OneriClient
@@ -20,7 +21,7 @@ OneriClient
   -> parseSuggestionRequest
   -> getRecommendations
   -> recipe-repository
-  -> SQLite + Drizzle
+  -> SQLite + Drizzle tarif kataloğu
 ```
 
 Tarif detay akışı:
@@ -31,43 +32,45 @@ OneriClient
   -> parseRecipeRequest
   -> recipe-repository
   -> recipe-mapper
-  -> ölçeklenmiş tarif
+  -> kişi sayısına göre ölçeklenmiş tarif
 ```
 
-### Önemli dosyalar
+Tarifler ve öneriler yerel katalogdan deterministik olarak üretilir; runtime sırasında harici bir yemek üretim servisine ihtiyaç yoktur.
 
-- `app/api/suggest/route.ts`: Yerel recommendation sonuçlarını döndürür.
-- `app/api/recipe/route.ts`: SQLite kataloğundan tarif detayını döndürür.
+## Önemli dosyalar
+
+- `app/api/suggest/route.ts`: Yerel öneri listesini döndürür.
+- `app/api/recipe/route.ts`: Katalogdan seçilen tarifin detayını döndürür.
 - `components/OneriClient.tsx`: Öneri, filtre, tarif detay ve geçmiş akışı.
-- `components/MalzemeGirisi.tsx`: Elle malzeme girişi ve hızlı seçimler.
-- `lib/requests.ts`: İstek gövdesi doğrulama ve temizleme.
-- `lib/db.ts`: `data/ai-food-recommender.db` için server-side Drizzle bağlantısı.
-- `lib/recipe-repository.ts`: Tarif ve ilişkili ingredient/diyet/adım sorguları.
+- `components/MalzemeGirisi.tsx`: Elle malzeme girişi ve sık kullanılan malzemeler.
+- `lib/requests.ts`: İstek gövdelerini doğrular ve temizler.
+- `lib/db.ts`: `data/aksam-ne-yesem.db` için server-side Drizzle bağlantısı.
+- `lib/recipe-repository.ts`: Tarif, ingredient, adım ve diyet sorguları.
 - `lib/recommendations.ts`: Normalization, ingredient matching, coverage, scoring, filtreleme ve exclusion.
-- `lib/recipe-mapper.ts`: Database tariflerini mevcut response modeline ve porsiyon ölçeklemeye dönüştürür.
+- `lib/recipe-mapper.ts`: Database tariflerini response modeline ve porsiyon ölçeklemeye dönüştürür.
 - `db/schema.ts`: SQLite + Drizzle şeması.
 - `db/seed.ts`: Idempotent tarif kataloğu seed'i.
 - `scripts/test-recommendations.ts`: Recommendation regression testleri.
 
 ## Recommendation davranışı
 
-Dolaptakiler modunda ingredient filtresi olan tarifler gösterilir. Sıralama:
+Dolaptakiler modunda en az bir kullanıcı malzemesiyle eşleşen tarifler gösterilir. Sıralama şu önceliklerle yapılır:
 
-1. Kullanıcının kaç farklı malzemesinin karşılandığı (`ingredientCoverage`)
-2. Gerekli tarif malzemelerinin eşleşme oranı (`matchScore`)
+1. `ingredientCoverage`: Kaç farklı kullanıcı malzemesi karşılanıyor?
+2. `matchScore`: Tarifin gerekli malzemelerinin ne kadarı karşılanıyor?
 3. Eşleşen ingredient sayısı
-4. Süre
+4. Hazırlama süresi
 5. Tarif adı
 
-Ingredient matching normalizasyon ve token-aware eşleşme kullanır. Bu nedenle `tavuk`, `tavuk göğsü` gibi anlamlı alt türleri eşleştirebilir. Diyet, mutfak, süre, `excludeNames` ve `excludeIngredients` filtreleri repository/recommendation katmanında uygulanır.
+Ingredient matching normalization ve token-aware eşleşme kullanır. Bu sayede `tavuk`, `tavuk göğsü` gibi anlamlı alt türler eşleşebilir. Diyet, mutfak, süre, `excludeNames` ve `excludeIngredients` filtreleri recommendation/repository katmanında uygulanır.
 
-Genel `Bana Öner` modunda ingredient filtresi uygulanmaz; diğer filtreler korunur. `/api/suggest` sonucu yoksa Dolaptakiler modunda öneri geçmişini güvenli fallback olarak kaldırıp uygun tarifleri yeniden kullanabilir.
+Genel `Bana Öner` modunda ingredient filtresi uygulanmaz; diğer filtreler çalışmaya devam eder. Dolaptakiler modunda öneri geçmişi uygun tariflerin tamamını dışlarsa, uygun tarifleri yeniden kullanabilen güvenli fallback uygulanır.
 
-## Seed kataloğu
+## Tarif kataloğu ve veritabanı
 
-`db/seed.ts` mevcut tarifleri koruyan ve slug üzerinden idempotent çalışan katalog seed'idir. Katalog Türk, İtalyan, Asya, Meksika, Akdeniz ve diğer desteklenen mutfakları; kahvaltı, çorba, ana yemek, salata/meze, hamur işi ve tatlı kategorilerini kapsar. Diyet etiketleri ve farklı süre aralıkları seed verisinde tutulur.
+Katalog 194 tarif içerir. Türk, İtalyan, Asya, Meksika, Akdeniz ve diğer desteklenen mutfaklar; kahvaltı, çorba, ana yemek, salata/meze, hamur işi ve tatlı kategorileri bulunur. Diyet etiketleri, süreler, kişi sayıları ve ingredient miktarları seed verisinde tutulur.
 
-Seed komutları:
+`db/seed.ts` slug değerleri üzerinden idempotent çalışır ve mevcut tarifleri korur. Veritabanı dosyası `data/aksam-ne-yesem.db` olarak tutulur; mevcut katalog yeni dosya adına taşınarak korunmuştur.
 
 ```bash
 npm run db:migrate
@@ -76,16 +79,14 @@ npm run db:seed
 
 ## Kullanıcı verileri
 
-Authentication olmadığı için anonim kullanıcı tercihleri ve geçmişleri browser localStorage'da tutulur. Mevcut legacy anahtarlar bilinçli olarak korunur:
+Kimlik doğrulama olmadığı için anonim kullanıcı geçmişi ve tercihleri tarayıcı localStorage'ında tutulur. Geriye dönük uyumluluk nedeniyle şu anahtarlar değiştirilmemelidir:
 
 - `foof-suggestion-history`
 - `foof-made`
 - `foof-suggested`
 - `foof-theme`
 
-Bu anahtarlar değiştirilmemelidir.
-
-## Doğrulama
+## Doğrulama komutları
 
 ```bash
 npm run test:recommendations
@@ -93,4 +94,4 @@ npm run lint
 npm run build
 ```
 
-Bu dosya, mevcut local SQLite + Drizzle recommendation mimarisini ve 194 tariflik katalog durumunu yansıtır.
+Bu dosya, Akşam Ne Yesem? uygulamasının güncel SQLite + Drizzle tabanlı yerel recommendation mimarisini ve 194 tariflik kataloğunu yansıtır.
