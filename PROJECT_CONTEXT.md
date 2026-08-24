@@ -24,7 +24,7 @@ Kullanıcının elindeki malzemeleri veya genel tercihlerini kullanarak yemek ö
 - Next.js App Router
 - Local SQLite database ve Drizzle ORM altyapısı eklendi.
 - SQLite bağlantısı `better-sqlite3` üzerinden server tarafında çalışır.
-- İlk Türk Mutfağı seed kataloğu eklendi; mevcut API’ler hâlâ DeepSeek tarafından runtime’da çalışıyor.
+- İlk Türk Mutfağı seed kataloğu eklendi; `/api/suggest` ve `/api/recipe` artık SQLite + Drizzle üzerinden runtime’da çalışıyor.
 
 ## Mevcut mimari
 
@@ -38,12 +38,10 @@ app/api/suggest/route.ts      Yemek listesi API route’u
 app/api/recipe/route.ts       Tam tarif API route’u
 lib/types.ts                  Ortak TypeScript veri tipleri
 lib/requests.ts               API istek doğrulama/temizleme
-lib/recipes.ts                AI promptları ve AI çıktısı doğrulama
-lib/deepseek.ts               DeepSeek API istemcisi
 lib/*.ts                      localStorage depoları ve tema altyapısı
 ```
 
-Kullanıcı arayüzü istemci ağırlıklıdır. API route’ları server tarafında çalışır ve DeepSeek API anahtarını tarayıcıya açmaz.
+Kullanıcı arayüzü istemci ağırlıklıdır. API route’ları server tarafında çalışır ve SQLite + Drizzle tarif kataloğuna erişir.
 
 ## Ana veri akışları
 
@@ -55,7 +53,8 @@ Ana sayfa
   -> OneriClient formu
   -> POST /api/suggest
   -> parseSuggestionRequest
-  -> DeepSeek promptu
+  -> getRecommendations()
+  -> SQLite + Drizzle ingredient matching / scoring / filtreler
   -> 5 DishSuggestion
   -> suggested localStorage geçmişine ekleme
 ```
@@ -66,8 +65,8 @@ Ana sayfa
 Kullanıcı bir yemek seçer
   -> POST /api/recipe
   -> parseRecipeRequest
-  -> DeepSeek tarif promptu
-  -> Recipe JSON doğrulaması
+  -> SQLite + Drizzle tarif repository’si
+  -> recipe mapper ile porsiyon ölçekleme
   -> TarifKarti ile gösterim
 ```
 
@@ -100,10 +99,8 @@ Tema tercihi        -> foof-theme
 
 ### Sunucu ve domain yardımcıları
 
-- `app/api/suggest/route.ts`: DeepSeek’ten 5 farklı yemek önerisi ister ve doğrulanmış liste döndürür.
-- `app/api/recipe/route.ts`: Seçilen yemek için DeepSeek’ten tam tarif ister ve doğrular.
-- `lib/deepseek.ts`: `DEEPSEEK_API_KEY` ve `DEEPSEEK_MODEL` ile DeepSeek chat/completions çağrısı yapar; JSON parse ve hata yönetimi burada.
-- `lib/recipes.ts`: Liste/tarif system promptları, user promptları, JSON doğrulayıcıları ve `SUGGEST_COUNT = 5`.
+- `app/api/suggest/route.ts`: SQLite + Drizzle recommendation servisinden filtrelenmiş ve puanlanmış yemek listesi döndürür.
+- `app/api/recipe/route.ts`: Seçilen yemeği SQLite + Drizzle repository’sinden bulur ve mevcut `Recipe` tipine map eder.
 - `lib/requests.ts`: API gövdelerini temizler ve sınırlar; kişi sayısı 1–20, dışlama listeleri en fazla 50 öğe.
 - `lib/types.ts`: `SuggestionMode`, `Recipe`, `DishSuggestion`, `SuggestionRequest`, `RecipeRequest`, `SavedRecipe` ve ilgili tipler.
 - `db/schema.ts`: SQLite + Drizzle tarif kataloğu şeması.
@@ -116,24 +113,13 @@ Tema tercihi        -> foof-theme
 - `lib/recipe-mapper.ts`: Database tariflerini mevcut `Recipe` tipine dönüştürme ve porsiyon ölçekleme katmanı.
 - `npm run db:seed`: Seed dosyasını local SQLite database’e uygular.
 
-## DeepSeek’in mevcut kullanım alanları
+## Runtime veri kaynağı
 
-DeepSeek şu anda uygulamanın temel yemek motorudur:
-
-1. `POST /api/suggest` içinde filtreler, malzemeler ve dışlama listeleriyle 5 yemek adı üretir.
-2. `POST /api/recipe` içinde seçilen yemek için tam tarif üretir.
-3. Kişi sayısına göre malzeme miktarlarını prompt aracılığıyla ölçekler.
-4. Dolap modunda eksik olabilecek tamamlayıcı malzemeleri `missingIngredients` alanında üretir.
-5. Üretilen JSON, `lib/recipes.ts` içindeki doğrulayıcılarla UI’a ulaşmadan kontrol edilir.
-
-DeepSeek’e ait environment değişkenleri:
-
-- `DEEPSEEK_API_KEY`: Zorunlu API anahtarı.
-- `DEEPSEEK_MODEL`: Varsayılan `deepseek-chat`.
+Tarif ve öneri verileri local SQLite kataloğundan gelir. Porsiyon ölçekleme `lib/recipe-mapper.ts`, eksik malzeme hesabı `lib/recommendations.ts` üzerinden deterministik olarak yapılır.
 
 ## Mevcut yemek/veri modeli
 
-Kalıcı yemek kataloğu local SQLite database’de bulunuyor. Öneri ve tarif API’leri henüz bu kataloğu kullanmıyor; runtime veri üretimi hâlâ DeepSeek üzerinden.
+Kalıcı yemek kataloğu local SQLite database’de bulunuyor. Öneri ve tarif API’leri bu kataloğu kullanıyor; runtime veri üretimi harici bir AI servisine bağlı değil.
 
 Mevcut `Recipe` yapısında malzeme miktarı string’dir:
 
@@ -215,21 +201,23 @@ Authentication olmadığı için kullanıcıya özel geçmişin database’e ta�
 - Porsiyon miktarlarının ölçeklenmesi hazırlandı.
 - `Domates + Yumurta → Menemen` smoke testi başarılı oldu.
 - 2 → 4 kişilik miktar ölçekleme, `excludeNames`, diyet ve süre filtreleri başarılı oldu.
+- `/api/suggest` route’u local recommendation servisine bağlandı; `domates + yumurta → Menemen` smoke testi başarılı oldu.
+- `/api/recipe` route’u SQLite repository + recipe mapper katmanına bağlandı; gerçek `Menemen` tarifi, miktarlar ve adımlar endpoint üzerinden doğrulandı.
+- Öneri listesinden seçilen yemeğin `/api/recipe` ile açıldığı uçtan uca contract testi başarılı oldu.
 - Lint başarılı oldu.
 - Build başarılı oldu.
 
 ## Şu anda üzerinde çalışılan işler
 
-Database altyapısı, ilk Türk Mutfağı seed kataloğu, proje adlandırma temizliği ve local recommendation servisleri tamamlandı. Şu anda `/api/suggest` ve `/api/recipe` hâlâ eski DeepSeek sistemini kullanıyor. Yeni local recommendation servisi henüz API route’larına bağlanmadı. DeepSeek henüz kaldırılmadı ve frontend henüz değiştirilmedi. LocalStorage anahtarları bilinçli olarak legacy `foof-*` isimleriyle korunuyor; migration daha sonraki ayrı bir iştir.
+Database altyapısı, ilk Türk Mutfağı seed kataloğu, proje adlandırma temizliği, local recommendation servisleri ve iki API route entegrasyonu tamamlandı. `/api/suggest` ve `/api/recipe` local SQLite + Drizzle altyapısına bağlı. Frontend contract’ları korunarak öneri listesi ve tarif görüntüleme akışları gerçek database verisiyle çalışıyor. Kullanılmayan eski AI altyapısı temizlendi; localStorage anahtarları bilinçli olarak legacy `foof-*` isimleriyle korunuyor.
 
 ## Önemli mimari kararlar
 
-- DeepSeek API anahtarı yalnızca server tarafında tutulur.
 - UI, öneri listesi ve tarif detayını iki ayrı API çağrısıyla alır.
 - API route’ları `app/api/**/route.ts` altında App Router Route Handler olarak kalır.
 - Database katmanı UI’dan ayrılmalı; route’lar repository/service fonksiyonlarını çağırmalıdır.
 - Local recommendation katmanı `lib/recipe-repository.ts`, `lib/recommendations.ts` ve `lib/recipe-mapper.ts` altında route’lardan bağımsız tutulur.
-- `/api/suggest` ve `/api/recipe` henüz DeepSeek tabanlıdır; local recommendation servisleri henüz route’lara bağlanmamıştır.
+- `/api/suggest` ve `/api/recipe` local SQLite + Drizzle tabanlıdır.
 - Database recommendation katmanı mevcut `Recipe` response tipini ve porsiyon ölçekleme davranışını korur.
 - Öneri algoritması database sorgusu + uygulama katmanında puanlama şeklinde çalışmalıdır.
 - `dishName` yerine database geçişinde `recipeId` veya `slug` kullanılması tercih edilir.
@@ -251,16 +239,14 @@ Database altyapısı, ilk Türk Mutfağı seed kataloğu, proje adlandırma temi
 - localStorage cihaz/tarayıcı bazlıdır; kullanıcı hesabı veya cihazlar arası senkronizasyon yoktur.
 - AI tarafından üretilen tariflerin içerik doğruluğu uygulama tarafından tamamen garanti edilemez.
 - Database’e geçişte filtrelerin ve malzeme eşleşmesinin Türkçe karakter/normalizasyon davranışı ayrıca tasarlanmalıdır.
-- README ve environment dokümantasyonu DeepSeek merkezlidir; migration sonrasında güncellenmelidir.
+- README ve environment dokümantasyonu local SQLite + Drizzle akışını yansıtır.
 
 ## Sıradaki yapılacak iş
 
-Local recommendation servisleri hazır; henüz API route entegrasyonu yapılmadı.
+Local recommendation servisleri, iki API route entegrasyonu ve kullanılmayan AI altyapısının temizliği tamamlandı.
 
-1. `/api/suggest` route’unu local recommendation servisine bağla.
-2. Entegrasyonu ve mevcut frontend akışını test et.
-3. `/api/recipe` route’unu database tarif sorgulama ve mapper katmanına geçir.
-4. DeepSeek bağımlılıklarını, prompt/parser katmanını ve ilgili environment/dokümantasyon referanslarını kaldır.
+1. Regression testlerini genişlet.
+2. Tarif kataloğunu ve desteklenen mutfakları genişlet.
 
 ## AI → database migration planı
 
@@ -291,27 +277,24 @@ Local recommendation servisleri hazır; henüz API route entegrasyonu yapılmad�
    - `findRecipesByIngredients`
    - `getRandomRecipes`
 
-6. **`/api/suggest` route’unu dönüştür**
-   - DeepSeek çağrısını kaldır.
-   - Filtreleri uygula.
-   - Dolap modunda malzeme eşleşme puanı hesapla.
-   - `excludeNames` ve “yaptığım yemekler” listesini uygula.
-   - 5 farklı sonuç döndür.
+6. **`/api/suggest` route’unu dönüştür — tamamlandı**
+   - Harici AI çağrısı kaldırıldı; local recommendation servisi kullanılıyor.
+   - Filtreler, malzeme eşleşme puanı, `excludeNames` ve `excludeIngredients` uygulanıyor.
+   - 5 farklı sonuç response contract korunarak döndürülüyor.
 
-7. **`/api/recipe` route’unu dönüştür**
-   - `recipeId`/`slug` ile database’den tarif getir.
-   - Kişi sayısına göre miktarları deterministik ölçekle.
-   - Eksik malzemeleri kullanıcının malzemeleriyle karşılaştırarak hesapla.
+7. **`/api/recipe` route’unu dönüştür — tamamlandı**
+   - Mevcut frontend contract’ı korunarak `dishName` ile database tarif sorgulanıyor.
+   - Kişi sayısına göre miktarlar deterministik ölçekleniyor.
+   - Dolap modunda eksik malzemeler kullanıcının malzemeleriyle karşılaştırılarak hesaplanıyor.
 
 8. **İstemciyi güncelle**
    - `OneriClient.tsx` içinde id/slug taşı.
    - AI’ye özel varsayımları kaldır.
    - Database kaynaklı hata ve boş sonuç durumlarını ele al.
 
-9. **AI kodunu temizle**
-   - `lib/deepseek.ts` kaldırılabilir.
-   - `lib/recipes.ts` içindeki prompt ve AI parse bölümleri kaldırılabilir.
-   - DeepSeek environment değişkenleri ve README talimatları silinmelidir.
+9. **Kullanılmayan AI kodunu temizle — tamamlandı**
+   - Kullanılmayan prompt/parser ve harici AI istemcisi dosyaları kaldırıldı.
+   - Harici AI environment ve README referansları kaldırıldı.
 
 10. **localStorage kararını uygula**
     - Tema localStorage’da kalır.
@@ -329,9 +312,12 @@ Local recommendation servisleri hazır; henüz API route entegrasyonu yapılmad�
 
 ## Context güncelleme notu
 
-Bu dosya son olarak local SQLite + Drizzle recommendation servislerinin oluşturulması ve smoke testlerinin tamamlanması sonrasında güncellenmiştir. Yeni önemli görevlerin sonunda bu bölüm ve ilgili bölümler güncellenmelidir.
+Bu dosya son olarak local SQLite + Drizzle recommendation servislerinin iki API route’a bağlanması ve smoke testlerinin tamamlanması sonrasında güncellenmiştir. Yeni önemli görevlerin sonunda bu bölüm ve ilgili bölümler güncellenmelidir.
 
 ## Güncelleme
 
-- Tarih: 2026-08-23
-- Mevcut aşama: Local SQLite + Drizzle recommendation servisleri hazır; API route entegrasyonu henüz yapılmadı.
+- Tarih: 2026-08-24
+- Recommendation sÄ±ralamasÄ±nda Dolaptakilerle modu iÃ§in `ingredientCoverage` birincil kriter olarak eklendi; `matchScore`, eÅŸit coverage durumunda ikincil kriter olarak korunuyor.
+- Malzeme giriÅŸindeki hÄ±zlÄ± seÃ§im listesine Bezelye eklendi.
+- Bezelye, bezelye + domates, manuel/hÄ±zlÄ± seÃ§im eÅŸitliÄŸi ve tavuk â†’ tavuk gÃ¶ÄŸsÃ¼ regression testleri doÄŸrulandÄ±; test, lint ve build baÅŸarÄ±lÄ±.
+- Mevcut aşama: `/api/suggest` ve `/api/recipe` local SQLite + Drizzle altyapısına bağlı; eski AI altyapısı temizlendi, gerçek tarif ve öneri akışları test edildi.

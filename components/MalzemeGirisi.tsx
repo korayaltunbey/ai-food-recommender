@@ -22,6 +22,7 @@ const QUICK_INGREDIENTS = [
   "Sarımsak",
   "Yoğurt",
   "Un",
+  "Bezelye",
   "Süt",
 ];
 

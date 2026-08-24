@@ -22,6 +22,7 @@ type SeedRecipe = {
   slug: string;
   name: string;
   category: string;
+  cuisine?: string;
   timeMinutes: number;
   difficulty: "Kolay" | "Orta" | "Zor";
   baseServings: number;
@@ -732,7 +733,370 @@ const seedRecipes: SeedRecipe[] = [
       "Sıcak revaninin üzerine soğuk şerbeti döküp dinlendir.",
     ],
   },
+  {
+    slug: "cilbir", name: "Çılbır", category: "Kahvaltı", cuisine: "Türk Mutfağı", timeMinutes: 15, difficulty: "Kolay", baseServings: 2,
+    diets: ["vegetarian", "gluten_free", "low_carb"],
+    ingredients: [ingredient("Yumurta", 4, "adet"), ingredient("Yoğurt", 1, "su bardağı"), ingredient("Sarımsak", 1, "diş"), ingredient("Tereyağı", 2, "yemek kaşığı"), ingredient("Pul biber", 1, "çay kaşığı"), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Yoğurdu sarımsak ve tuzla karıştır.", "Yumurtaları kaynayan suda poşe et.", "Tereyağında pul biberi kızdır.", "Yumurtaları yoğurt üzerine alıp biberli yağla servis et."],
+  },
+  {
+    slug: "sebzeli-omlet", name: "Sebzeli Omlet", category: "Kahvaltı", cuisine: "Türk Mutfağı", timeMinutes: 20, difficulty: "Kolay", baseServings: 2,
+    diets: ["vegetarian", "gluten_free", "low_carb"],
+    ingredients: [ingredient("Yumurta", 4, "adet"), ingredient("Mantar", 100, "gram"), ingredient("Kabak", 1, "adet"), ingredient("Bezelye", 100, "gram", { optional: true }), ingredient("Yeşil biber", 1, "adet"), ingredient("Kaşar peyniri", 50, "gram", { optional: true }), ingredient("Sıvı yağ", 1, "yemek kaşığı"), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Mantar, kabak ve biberi yağda sotele.", "Çırpılmış yumurtayı sebzelerin üzerine dök.", "Kaşar peynirini serpiştirip omleti pişir.", "İkiye katlayıp sıcak servis et."],
+  },
+  {
+    slug: "peynirli-sahanda-yumurta", name: "Peynirli Sahanda Yumurta", category: "Kahvaltı", cuisine: "Türk Mutfağı", timeMinutes: 15, difficulty: "Kolay", baseServings: 2,
+    diets: ["vegetarian", "gluten_free", "low_carb"],
+    ingredients: [ingredient("Yumurta", 4, "adet"), ingredient("Beyaz peynir", 100, "gram"), ingredient("Domates", 1, "adet"), ingredient("Tereyağı", 1, "yemek kaşığı"), ingredient("Kırmızı biber", 0.5, "adet", { optional: true }), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Domates ve biberi tereyağında pişir.", "Beyaz peyniri ekleyip karıştır.", "Yumurtaları üzerine kırıp kapağı kapat.", "Yumurta akları pişince servis et."],
+  },
+  {
+    slug: "domates-corbasi", name: "Domates Çorbası", category: "Çorba", cuisine: "Türk Mutfağı", timeMinutes: 30, difficulty: "Kolay", baseServings: 4,
+    diets: ["vegetarian", "gluten_free", "low_calorie"],
+    ingredients: [ingredient("Domates", 5, "adet"), ingredient("Domates salçası", 1, "yemek kaşığı"), ingredient("Soğan", 1, "adet"), ingredient("Sarımsak", 1, "diş", { optional: true }), ingredient("Zeytinyağı", 2, "yemek kaşığı"), ingredient("Su", 4, "su bardağı"), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" }), ingredient("Karabiber", null, "tutam", { quantityText: "isteğe göre" })],
+    steps: ["Soğanı yağda kavurup salçayı ekle.", "Domates, sarımsak ve suyu ilave edip kaynat.", "Çorbayı blenderdan geçir.", "Tuz ve karabiberle servis et."],
+  },
+  {
+    slug: "tavuk-suyu-corbasi", name: "Tavuk Suyu Çorbası", category: "Çorba", cuisine: "Türk Mutfağı", timeMinutes: 45, difficulty: "Kolay", baseServings: 4,
+    diets: ["gluten_free"],
+    ingredients: [ingredient("Tavuk göğsü", 300, "gram"), ingredient("Havuç", 1, "adet"), ingredient("Soğan", 1, "adet"), ingredient("Pirinç", 0.5, "su bardağı"), ingredient("Su", 6, "su bardağı"), ingredient("Limon suyu", 1, "yemek kaşığı", { optional: true }), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Tavuğu soğan ve suyla haşla.", "Tavuğu didikleyip suyunu süz.", "Pirinç ve havucu tavuk suyunda pişir.", "Tavuğu ekleyip limon ve tuzla servis et."],
+  },
+  {
+    slug: "mantar-corbasi", name: "Mantar Çorbası", category: "Çorba", cuisine: "İtalyan mutfağı", timeMinutes: 30, difficulty: "Kolay", baseServings: 4,
+    diets: ["vegetarian", "gluten_free"],
+    ingredients: [ingredient("Mantar", 400, "gram"), ingredient("Soğan", 1, "adet"), ingredient("Tereyağı", 2, "yemek kaşığı"), ingredient("Süt", 1, "su bardağı"), ingredient("Su", 3, "su bardağı"), ingredient("Sarımsak", 1, "diş", { optional: true }), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" }), ingredient("Karabiber", null, "tutam", { quantityText: "isteğe göre" })],
+    steps: ["Soğan ve sarımsağı tereyağında kavur.", "Mantarları ekleyip suyunu çektir.", "Süt ve suyu ekleyip kaynat.", "Bir kısmını blenderdan geçirip baharatla servis et."],
+  },
+  {
+    slug: "sebze-corbasi", name: "Sebze Çorbası", category: "Çorba", cuisine: "Akdeniz mutfağı", timeMinutes: 35, difficulty: "Kolay", baseServings: 4,
+    diets: ["vegan", "vegetarian", "gluten_free", "low_calorie"],
+    ingredients: [ingredient("Kabak", 1, "adet"), ingredient("Brokoli", 200, "gram"), ingredient("Bezelye", 150, "gram", { optional: true }), ingredient("Havuç", 1, "adet"), ingredient("Soğan", 1, "adet"), ingredient("Zeytinyağı", 2, "yemek kaşığı"), ingredient("Su", 5, "su bardağı"), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Soğanı yağda yumuşat.", "Sebzeleri ekleyip birkaç dakika çevir.", "Suyu ekleyip sebzeler yumuşayana kadar pişir.", "Tuzlayıp taneli veya pürüzsüz servis et."],
+  },
+  {
+    slug: "tavuk-sote", name: "Tavuk Sote", category: "Ana yemek", cuisine: "Türk Mutfağı", timeMinutes: 35, difficulty: "Kolay", baseServings: 4,
+    diets: ["gluten_free", "low_carb"],
+    ingredients: [ingredient("Tavuk göğsü", 500, "gram"), ingredient("Soğan", 1, "adet"), ingredient("Domates", 2, "adet"), ingredient("Yeşil biber", 2, "adet"), ingredient("Sarımsak", 2, "diş"), ingredient("Zeytinyağı", 3, "yemek kaşığı"), ingredient("Kekik", 1, "çay kaşığı", { optional: true }), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Tavuğu yağda renk alana kadar sotele.", "Soğan ve biberi ekleyip yumuşat.", "Domates ve sarımsağı ilave edip pişir.", "Kekik ve tuzla servis et."],
+  },
+  {
+    slug: "nohut-yemegi", name: "Nohut Yemeği", category: "Ana yemek", cuisine: "Türk Mutfağı", timeMinutes: 75, difficulty: "Orta", baseServings: 4,
+    diets: ["vegan", "vegetarian", "gluten_free", "low_calorie"],
+    ingredients: [ingredient("Nohut", 2, "su bardağı"), ingredient("Soğan", 1, "adet"), ingredient("Domates salçası", 1, "yemek kaşığı"), ingredient("Biber salçası", 1, "tatlı kaşığı", { optional: true }), ingredient("Zeytinyağı", 3, "yemek kaşığı"), ingredient("Su", 5, "su bardağı"), ingredient("Kimyon", 0.5, "çay kaşığı", { optional: true }), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Nohudu haşla.", "Soğanı yağda kavurup salçaları ekle.", "Nohut ve suyu ilave edip kısık ateşte pişir.", "Kimyon ve tuzla servis et."],
+  },
+  {
+    slug: "zeytinyagli-taze-fasulye", name: "Zeytinyağlı Taze Fasulye", category: "Ana yemek", cuisine: "Türk Mutfağı", timeMinutes: 50, difficulty: "Kolay", baseServings: 4,
+    diets: ["vegan", "vegetarian", "gluten_free", "low_calorie"],
+    ingredients: [ingredient("Taze fasulye", 600, "gram"), ingredient("Domates", 3, "adet"), ingredient("Soğan", 1, "adet"), ingredient("Sarımsak", 2, "diş", { optional: true }), ingredient("Zeytinyağı", 5, "yemek kaşığı"), ingredient("Su", 1, "su bardağı"), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Soğanı yağda kavur.", "Fasulyeyi ekleyip birkaç dakika çevir.", "Domates, sarımsak ve suyu ilave et.", "Fasulyeler yumuşayana kadar pişir."],
+  },
+  {
+    slug: "firinda-somon", name: "Fırında Somon", category: "Ana yemek", cuisine: "Akdeniz mutfağı", timeMinutes: 30, difficulty: "Kolay", baseServings: 2,
+    diets: ["gluten_free", "low_carb", "low_calorie"],
+    ingredients: [ingredient("Somon fileto", 400, "gram"), ingredient("Limon suyu", 2, "yemek kaşığı"), ingredient("Zeytinyağı", 2, "yemek kaşığı"), ingredient("Sarımsak", 1, "diş", { optional: true }), ingredient("Biberiye", 1, "dal", { optional: true }), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" }), ingredient("Karabiber", null, "tutam", { quantityText: "isteğe göre" })],
+    steps: ["Somonları tepsiye yerleştir.", "Limon, yağ, sarımsak ve baharatları üzerine sür.", "200 derece fırında 20 dakika pişir.", "Sıcak servis et."],
+  },
+  {
+    slug: "ratatouille", name: "Ratatouille", category: "Ana yemek", cuisine: "Akdeniz mutfağı", timeMinutes: 45, difficulty: "Orta", baseServings: 4,
+    diets: ["vegan", "vegetarian", "gluten_free", "low_calorie"],
+    ingredients: [ingredient("Kabak", 2, "adet"), ingredient("Patlıcan", 1, "adet"), ingredient("Domates", 4, "adet"), ingredient("Soğan", 1, "adet"), ingredient("Yeşil biber", 1, "adet"), ingredient("Zeytinyağı", 4, "yemek kaşığı"), ingredient("Fesleğen", 0.5, "demet", { optional: true }), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Soğan ve biberi yağda yumuşat.", "Patlıcan ve kabağı ekleyip sotele.", "Domatesi ilave edip sebzeler yumuşayana kadar pişir.", "Fesleğen ve tuzla servis et."],
+  },
+  {
+    slug: "pasta-arrabbiata", name: "Pasta Arrabbiata", category: "Ana yemek", cuisine: "İtalyan mutfağı", timeMinutes: 30, difficulty: "Kolay", baseServings: 4,
+    diets: ["vegan", "vegetarian"],
+    ingredients: [ingredient("Makarna", 350, "gram"), ingredient("Domates", 4, "adet"), ingredient("Sarımsak", 3, "diş"), ingredient("Zeytinyağı", 3, "yemek kaşığı"), ingredient("Pul biber", 1, "çay kaşığı"), ingredient("Fesleğen", 0.5, "demet", { optional: true }), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Makarnayı tuzlu suda haşla.", "Sarımsağı yağda çevirip domates ve pul biberi ekle.", "Sosu koyulaşana kadar pişir.", "Makarnayı sosla karıştırıp fesleğenle servis et."],
+  },
+  {
+    slug: "tavuklu-kori", name: "Tavuklu Köri", category: "Ana yemek", cuisine: "Asya mutfağı", timeMinutes: 40, difficulty: "Orta", baseServings: 4,
+    diets: ["gluten_free"],
+    ingredients: [ingredient("Tavuk göğsü", 500, "gram"), ingredient("Hindistan cevizi sütü", 400, "mililitre"), ingredient("Soğan", 1, "adet"), ingredient("Sarımsak", 2, "diş"), ingredient("Zencefil", 1, "tatlı kaşığı"), ingredient("Köri", 2, "çay kaşığı"), ingredient("Sıvı yağ", 2, "yemek kaşığı"), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Tavuğu yağda sotele.", "Soğan, sarımsak ve zencefili ekle.", "Köri ve Hindistan cevizi sütünü ilave et.", "Tavuk pişene kadar kaynatıp servis et."],
+  },
+  {
+    slug: "chili-con-carne", name: "Chili con Carne", category: "Ana yemek", cuisine: "Meksika mutfağı", timeMinutes: 60, difficulty: "Orta", baseServings: 4,
+    diets: ["gluten_free", "low_carb"],
+    ingredients: [ingredient("Kıyma", 400, "gram"), ingredient("Kuru fasulye", 1, "su bardağı"), ingredient("Domates", 4, "adet"), ingredient("Soğan", 1, "adet"), ingredient("Yeşil biber", 1, "adet"), ingredient("Mısır", 1, "su bardağı", { optional: true }), ingredient("Kimyon", 1, "çay kaşığı"), ingredient("Pul biber", 1, "çay kaşığı"), ingredient("Zeytinyağı", 2, "yemek kaşığı")],
+    steps: ["Soğan ve biberi yağda kavur.", "Kıymayı ekleyip suyunu çektir.", "Domates, fasulye, mısır ve baharatları ekle.", "Kısık ateşte 30 dakika pişir."],
+  },
+  {
+    slug: "ispanakli-borek", name: "Ispanaklı Börek", category: "Hamur işi", cuisine: "Türk Mutfağı", timeMinutes: 60, difficulty: "Orta", baseServings: 6,
+    diets: ["vegetarian"],
+    ingredients: [ingredient("Yufka", 3, "adet"), ingredient("Ispanak", 500, "gram"), ingredient("Beyaz peynir", 150, "gram"), ingredient("Soğan", 1, "adet"), ingredient("Yumurta", 1, "adet"), ingredient("Yoğurt", 1, "su bardağı"), ingredient("Sıvı yağ", 0.5, "su bardağı"), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Soğanı kavurup ıspanağı suyunu çekene kadar pişir.", "Peynir ve tuzla iç harcı hazırla.", "Yoğurt, yumurta ve yağı çırpıp yufkaları sosla.", "Harçla katlayıp 180 derece fırında kızart."],
+  },
+  {
+    slug: "peynirli-pide", name: "Peynirli Pide", category: "Hamur işi", cuisine: "Türk Mutfağı", timeMinutes: 55, difficulty: "Orta", baseServings: 4,
+    diets: ["vegetarian"],
+    ingredients: [ingredient("Un", 500, "gram"), ingredient("Kuru maya", 1, "paket"), ingredient("Beyaz peynir", 200, "gram"), ingredient("Kaşar peyniri", 100, "gram"), ingredient("Yumurta", 1, "adet", { optional: true }), ingredient("Su", 1.5, "su bardağı"), ingredient("Zeytinyağı", 2, "yemek kaşığı"), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Un, maya, su, yağ ve tuzla hamur yoğurup mayalandır.", "Hamuru dört parçaya bölüp aç.", "Peynirleri doldurup kenarları kapat.", "220 derece fırında kızarana kadar pişir."],
+  },
+  {
+    slug: "pizza-margherita", name: "Pizza Margherita", category: "Hamur işi", cuisine: "İtalyan mutfağı", timeMinutes: 45, difficulty: "Orta", baseServings: 4,
+    diets: ["vegetarian"],
+    ingredients: [ingredient("Un", 400, "gram"), ingredient("Kuru maya", 1, "paket"), ingredient("Domates", 3, "adet"), ingredient("Mozzarella", 200, "gram"), ingredient("Fesleğen", 0.5, "demet", { optional: true }), ingredient("Zeytinyağı", 2, "yemek kaşığı"), ingredient("Su", 1.25, "su bardağı"), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Un, maya, su, yağ ve tuzla hamur yoğurup mayalandır.", "Hamuru açıp domatesi ve mozzarellayı yerleştir.", "240 derece fırında pişir.", "Fesleğenle servis et."],
+  },
+  {
+    slug: "quesadilla", name: "Quesadilla", category: "Hamur işi", cuisine: "Meksika mutfağı", timeMinutes: 25, difficulty: "Kolay", baseServings: 2,
+    diets: ["vegetarian"],
+    ingredients: [ingredient("Tortilla", 4, "adet"), ingredient("Kaşar peyniri", 150, "gram"), ingredient("Mısır", 1, "su bardağı"), ingredient("Kırmızı biber", 1, "adet"), ingredient("Domates", 1, "adet"), ingredient("Zeytinyağı", 1, "yemek kaşığı"), ingredient("Kimyon", 0.5, "çay kaşığı", { optional: true })],
+    steps: ["Biber ve domatesi yağda sotele.", "Tortillaya peynir, mısır ve sebzeleri yerleştir.", "Tortillayı kapatıp iki tarafını tavada kızart.", "Dilimleyip servis et."],
+  },
+  {
+    slug: "humus", name: "Humus", category: "Salata/meze", cuisine: "Akdeniz mutfağı", timeMinutes: 20, difficulty: "Kolay", baseServings: 4,
+    diets: ["vegan", "vegetarian", "gluten_free", "low_calorie"],
+    ingredients: [ingredient("Nohut", 2, "su bardağı"), ingredient("Tahin", 3, "yemek kaşığı"), ingredient("Limon suyu", 3, "yemek kaşığı"), ingredient("Sarımsak", 1, "diş"), ingredient("Zeytinyağı", 3, "yemek kaşığı"), ingredient("Su", 0.5, "su bardağı"), ingredient("Kimyon", 0.5, "çay kaşığı", { optional: true }), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Nohut, tahin, limon, sarımsak ve kimyonu blendera al.", "Su ekleyerek pürüzsüz çek.", "Tuzla tatlandırıp tabağa al.", "Zeytinyağı gezdirerek servis et."],
+  },
+  {
+    slug: "caprese-salatasi", name: "Caprese Salatası", category: "Salata/meze", cuisine: "İtalyan mutfağı", timeMinutes: 15, difficulty: "Kolay", baseServings: 2,
+    diets: ["vegetarian", "gluten_free", "low_carb"],
+    ingredients: [ingredient("Domates", 3, "adet"), ingredient("Mozzarella", 200, "gram"), ingredient("Fesleğen", 0.5, "demet", { optional: true }), ingredient("Zeytinyağı", 2, "yemek kaşığı"), ingredient("Limon suyu", 1, "yemek kaşığı", { optional: true }), ingredient("Tuz", null, "tutam", { quantityText: "yeteri kadar" })],
+    steps: ["Domates ve mozzarellayı dilimleyip sırayla diz.", "Fesleğen yapraklarını aralara yerleştir.", "Yağ, limon ve tuz gezdir.", "Bekletmeden servis et."],
+  },
+  {
+    slug: "asya-usulu-salatalik-salatasi", name: "Asya Usulü Salatalık Salatası", category: "Salata/meze", cuisine: "Asya mutfağı", timeMinutes: 15, difficulty: "Kolay", baseServings: 2,
+    diets: ["vegan", "vegetarian", "gluten_free", "low_calorie"],
+    ingredients: [ingredient("Salatalık", 3, "adet"), ingredient("Ton balığı", 1, "kutu", { optional: true }), ingredient("Pirinç sirkesi", 2, "yemek kaşığı"), ingredient("Soya sosu", 1, "yemek kaşığı"), ingredient("Susam yağı", 1, "tatlı kaşığı"), ingredient("Zencefil", 0.5, "tatlı kaşığı", { optional: true }), ingredient("Susam", 1, "yemek kaşığı", { optional: true }), ingredient("Pul biber", 0.5, "çay kaşığı", { optional: true })],
+    steps: ["Salatalıkları kaseye al.", "Sirke, soya sosu, susam yağı ve zencefili karıştır.", "Sosu salatalıklarla harmanlayıp dinlendir.", "Susam ve pul biberle servis et."],
+  },
+  {
+    slug: "tiramisu", name: "Tiramisu", category: "Tatlı", cuisine: "İtalyan mutfağı", timeMinutes: 90, difficulty: "Orta", baseServings: 8,
+    diets: ["vegetarian"],
+    ingredients: [ingredient("Kedi dili", 1, "paket"), ingredient("Mascarpone", 250, "gram"), ingredient("Yumurta", 3, "adet"), ingredient("Toz şeker", 1, "su bardağı"), ingredient("Kahve", 2, "su bardağı"), ingredient("Kakao", 2, "yemek kaşığı", { optional: true })],
+    steps: ["Yumurta sarısı, şeker ve mascarpone ile krema hazırla.", "Kedi dillerini kahveye batırıp kaba diz.", "Krema ile katları oluştur.", "Soğutup kakao serperek servis et."],
+  },
+  {
+    slug: "chia-puding", name: "Chia Puding", category: "Tatlı", cuisine: "Asya mutfağı", timeMinutes: 10, difficulty: "Kolay", baseServings: 2,
+    diets: ["vegetarian", "gluten_free", "low_calorie"],
+    ingredients: [ingredient("Chia tohumu", 4, "yemek kaşığı"), ingredient("Hindistan cevizi sütü", 2, "su bardağı"), ingredient("Bal", 1, "yemek kaşığı", { optional: true }), ingredient("Muz", 1, "adet", { optional: true }), ingredient("Tarçın", 0.5, "çay kaşığı", { optional: true })],
+    steps: ["Chia tohumlarını Hindistan cevizi sütüyle karıştır.", "Bal ve tarçın ekle.", "Buzdolabında en az 2 saat beklet.", "Muzla servis et."],
+  },
+  {
+    slug: "tres-leches", name: "Tres Leches", category: "Tatlı", cuisine: "Meksika mutfağı", timeMinutes: 75, difficulty: "Orta", baseServings: 10,
+    diets: ["vegetarian"],
+    ingredients: [ingredient("Yumurta", 4, "adet"), ingredient("Un", 1.5, "su bardağı"), ingredient("Toz şeker", 1, "su bardağı"), ingredient("Süt", 2, "su bardağı"), ingredient("Yoğunlaştırılmış süt", 1, "kutu"), ingredient("Krema", 1, "su bardağı"), ingredient("Vanilin", 1, "paket", { optional: true })],
+    steps: ["Yumurta, şeker, un ve vanilinle kek harcı hazırla.", "180 derece fırında pişir.", "Süt, yoğunlaştırılmış süt ve kremayı karıştır.", "Kek ılınınca sütlü karışımı döküp soğuk servis et."],
+  },
 ];
+
+type CatalogGroup = {
+  cuisine: string;
+  category: string;
+  names: string[];
+  ingredientSets: string[][];
+  times: number[];
+  diets: string[][];
+};
+
+const catalogMeasures: Record<string, [number, string]> = {
+  "Tavuk göğsü": [300, "gram"], Tavuk: [300, "gram"],
+  "Dana eti": [300, "gram"], Kıyma: [300, "gram"], "Kuzu eti": [300, "gram"],
+  "Somon fileto": [250, "gram"], "Ton balığı": [1, "kutu"], Karides: [250, "gram"],
+  Mantar: [200, "gram"], Kabak: [2, "adet"], Patlıcan: [2, "adet"], Brokoli: [250, "gram"],
+  Karnabahar: [300, "gram"], Ispanak: [300, "gram"], Bezelye: [150, "gram"], Mısır: [1, "su bardağı"],
+  Domates: [3, "adet"], "Çeri domates": [250, "gram"], Soğan: [1, "adet"], "Kırmızı soğan": [1, "adet"],
+  "Yeşil biber": [2, "adet"], "Kırmızı biber": [1, "adet"], Havuç: [2, "adet"], Patates: [3, "adet"],
+  "Tatlı patates": [2, "adet"], Salatalık: [2, "adet"], Avokado: [1, "adet"], Lahana: [300, "gram"],
+  "Taze fasulye": [400, "gram"], Nohut: [1, "su bardağı"], Mercimek: [1, "su bardağı"],
+  "Kuru fasulye": [1, "su bardağı"], Pirinç: [1, "su bardağı"], Makarna: [300, "gram"],
+  Spagetti: [300, "gram"], "Pirinç eriştesi": [250, "gram"], "Tortilla": [4, "adet"],
+  Un: [300, "gram"], Yufka: [2, "adet"], Ekmek: [4, "dilim"], Yumurta: [2, "adet"],
+  Yoğurt: [1, "su bardağı"], "Hindistan cevizi sütü": [200, "mililitre"], Süt: [1, "su bardağı"],
+  "Beyaz peynir": [100, "gram"], "Kaşar peyniri": [100, "gram"], Mozzarella: [125, "gram"],
+  Parmesan: [50, "gram"], Tofu: [250, "gram"], Tahin: [2, "yemek kaşığı"],
+  "Zeytinyağı": [2, "yemek kaşığı"], "Sıvı yağ": [2, "yemek kaşığı"], "Limon suyu": [2, "yemek kaşığı"],
+  "Soya sosu": [2, "yemek kaşığı"], "Domates sosu": [1, "su bardağı"], "Kırmızı köri": [1, "yemek kaşığı"],
+  "Taze fesleğen": [0.5, "demet"], Maydanoz: [0.5, "demet"], Kişniş: [0.5, "demet"],
+  Fesleğen: [0.5, "demet"], Sarımsak: [2, "diş"], Zencefil: [1, "tatlı kaşığı"],
+  "Elma sirkesi": [1, "yemek kaşığı"], "Pirinç sirkesi": [1, "yemek kaşığı"],
+  "Balzamik sirke": [1, "yemek kaşığı"], "Akçaağaç şurubu": [1, "yemek kaşığı"],
+};
+
+function catalogIngredient(name: string): SeedIngredient {
+  const [quantity, unit] = catalogMeasures[name] ?? [1, "adet"];
+  return ingredient(name, quantity, unit);
+}
+
+function catalogSteps(name: string, category: string): string[] {
+  if (category === "Çorba") return [`${name} için sebze ve ana malzemeleri doğrayıp tencerede kısa süre sotele.`, "Su veya uygun sıvıyı ekleyip malzemeler yumuşayana kadar kaynat.", "Baharatını ayarlayıp sıcak servis et."];
+  if (category === "Salata/meze") return [`${name} için malzemeleri doğrayıp hazırlama kabına al.`, "Sosu ayrı karıştırıp malzemelerle harmanla.", "Dinlendirip soğuk servis et."];
+  if (category === "Tatlı") return [`${name} için malzemeleri pürüzsüz bir karışım olana kadar birleştir.`, "Tarife uygun olarak pişir veya soğuk şekilde dinlendir.", "Porsiyonlayıp servis et."];
+  if (category === "Hamur işi") return [`${name} için hamur veya tabanı hazırlayıp dinlendir.`, "İç malzemeyi yerleştirip fırında ya da tavada kızarana kadar pişir.", "Kısa süre dinlendirip servis et."];
+  return [`${name} için malzemeleri hazırlayıp doğra.`, "Ana malzemeyi tavada veya tencerede pişirip sos ve baharatları ekle.", "Malzemeler tamamen pişince sıcak servis et."];
+}
+
+function buildCatalogGroups(groups: CatalogGroup[]): SeedRecipe[] {
+  return groups.flatMap((group) =>
+    group.names.map((name, index) => {
+      const slug = normalizeIngredientName(name).replace(/ /g, "-");
+      return {
+        slug,
+        name,
+        category: group.category,
+        cuisine: group.cuisine,
+        timeMinutes: group.times[index % group.times.length],
+        difficulty: group.times[index % group.times.length] <= 20 ? "Kolay" : index % 3 === 0 ? "Zor" : "Orta",
+        baseServings: [1, 2, 3, 4][index % 4],
+        diets: group.diets[index % group.diets.length],
+        ingredients: group.ingredientSets[index % group.ingredientSets.length].map(catalogIngredient),
+        steps: catalogSteps(name, group.category),
+      } satisfies SeedRecipe;
+    })
+  );
+}
+
+const additionalRecipes = buildCatalogGroups([
+  {
+    cuisine: "Türk Mutfağı", category: "Ana yemek",
+    names: ["Tavuklu Sebze Güveç", "Etli Bezelye", "Kabak Yemeği", "Brokolili Tavuk"],
+    ingredientSets: [["Tavuk göğsü", "Kabak", "Domates", "Soğan", "Zeytinyağı"], ["Kıyma", "Bezelye", "Havuç", "Domates", "Soğan"], ["Kabak", "Domates", "Soğan", "Sarımsak", "Zeytinyağı"], ["Tavuk göğsü", "Brokoli", "Havuç", "Sarımsak", "Zeytinyağı"]],
+    times: [15, 30, 45, 60], diets: [["gluten_free"], ["vegetarian", "gluten_free"], ["vegan", "vegetarian", "gluten_free", "low_calorie"], ["gluten_free", "low_carb"]],
+  },
+  {
+    cuisine: "Türk Mutfağı", category: "Çorba",
+    names: ["Sebzeli Mercimek Çorbası", "Brokoli Çorbası"],
+    ingredientSets: [["Mercimek", "Havuç", "Soğan", "Zeytinyağı"], ["Brokoli", "Patates", "Soğan", "Süt"], ["Mantar", "Soğan", "Süt", "Tereyağı"], ["Tavuk göğsü", "Havuç", "Soğan", "Yumurta"]],
+    times: [15, 30, 45], diets: [["vegan", "vegetarian", "gluten_free", "low_calorie"], ["vegetarian", "gluten_free"], ["gluten_free"], ["vegetarian"]],
+  },
+  {
+    cuisine: "Türk Mutfağı", category: "Kahvaltı",
+    names: ["Yoğurtlu Salatalık", "Bezelyeli Omlet"],
+    ingredientSets: [["Yoğurt", "Salatalık", "Sarımsak", "Zeytinyağı"], ["Yumurta", "Bezelye", "Beyaz peynir", "Yeşil biber"], ["Yumurta", "Ispanak", "Beyaz peynir", "Soğan"], ["Yumurta", "Mantar", "Domates", "Yeşil biber"]],
+    times: [10, 15, 20], diets: [["vegetarian", "gluten_free", "low_calorie"], ["vegetarian", "gluten_free", "low_carb"], ["vegetarian", "gluten_free"], ["vegetarian"]],
+  },
+  {
+    cuisine: "Türk Mutfağı", category: "Salata/meze",
+    names: [],
+    ingredientSets: [["Mercimek", "İnce bulgur", "Soğan", "Maydanoz"], ["Kabak", "Yoğurt", "Sarımsak", "Zeytinyağı"], ["Brokoli", "Yoğurt", "Limon suyu", "Sarımsak"], ["Mısır", "Domates", "Salatalık", "Limon suyu"]],
+    times: [15, 20, 30], diets: [["vegan", "vegetarian"], ["vegetarian", "gluten_free"], ["vegetarian", "gluten_free", "low_calorie"], ["vegan", "vegetarian", "gluten_free"]],
+  },
+  {
+    cuisine: "Türk Mutfağı", category: "Hamur işi",
+    names: [],
+    ingredientSets: [["Yufka", "Patates", "Soğan", "Sıvı yağ"], ["Un", "Ispanak", "Beyaz peynir", "Yoğurt"], ["Un", "Beyaz peynir", "Tereyağı", "Yumurta"], ["Yufka", "Tavuk göğsü", "Soğan", "Yoğurt"]],
+    times: [30, 45, 60], diets: [["vegetarian"], ["vegetarian"], ["vegetarian"], []],
+  },
+  {
+    cuisine: "Türk Mutfağı", category: "Tatlı",
+    names: [],
+    ingredientSets: [["İncir", "Ceviz içi", "Yoğurt"], ["Süt", "Pirinç", "Toz şeker", "Vanilin"], ["Yoğurt", "Şeftali", "Bal"], ["Hurma", "Ceviz içi", "Tarçın"], ["Elma", "İrmik", "Süt", "Tarçın"]],
+    times: [10, 30, 45], diets: [["vegan", "vegetarian", "gluten_free"], ["vegetarian", "gluten_free"], ["vegetarian", "gluten_free", "low_calorie"], ["vegan", "vegetarian", "gluten_free"], ["vegetarian"]],
+  },
+  {
+    cuisine: "İtalyan mutfağı", category: "Ana yemek",
+    names: ["Sebzeli Risotto", "Mantarlı Risotto", "Limonlu Tavuk", "Pesto Tavuk", "Melanzane alla Parmigiana", "Polenta Sebzeli", "Gnocchi Domates Soslu", "Lazanya Sebzeli", "Penne Puttanesca", "Spagetti Carbonara", "Fırın Makarna", "Tavuklu Pesto Makarna"],
+    ingredientSets: [["Pirinç", "Mantar", "Soğan", "Parmesan"], ["Pirinç", "Mantar", "Soğan", "Parmesan"], ["Tavuk göğsü", "Limon suyu", "Sarımsak", "Zeytinyağı"], ["Tavuk göğsü", "Taze fesleğen", "Mozzarella", "Domates"], ["Patlıcan", "Domates sosu", "Mozzarella", "Parmesan"], ["Mısır unu", "Kabak", "Domates", "Zeytinyağı"]],
+    times: [20, 30, 45, 60], diets: [["vegetarian", "gluten_free"], ["vegetarian"], ["gluten_free", "low_carb"], ["gluten_free"], ["vegetarian"], ["vegan", "vegetarian", "gluten_free"]],
+  },
+  {
+    cuisine: "İtalyan mutfağı", category: "Çorba",
+    names: ["Minestrone", "Stracciatella Çorbası", "Zuppa di Ceci", "Kremalı Kabak Çorbası", "Mercimekli İtalyan Çorbası"],
+    ingredientSets: [["Kabak", "Havuç", "Domates", "Makarna"], ["Yumurta", "Parmesan", "Ispanak", "Su"], ["Nohut", "Domates", "Soğan", "Zeytinyağı"], ["Kabak", "Soğan", "Süt", "Tereyağı"]],
+    times: [15, 30, 45], diets: [["vegan", "vegetarian"], ["vegetarian", "gluten_free"], ["vegan", "vegetarian", "gluten_free"], ["vegetarian", "gluten_free"]],
+  },
+  {
+    cuisine: "İtalyan mutfağı", category: "Salata/meze",
+    names: ["Bruschetta", "Panzanella", "Roka Parmesan Salatası", "Fasulye Ton Balığı Salatası", "İtalyan Mercimek Salatası"],
+    ingredientSets: [["Ekmek", "Domates", "Taze fesleğen", "Zeytinyağı"], ["Ekmek", "Domates", "Salatalık", "Kırmızı soğan"], ["Roka", "Parmesan", "Limon suyu", "Zeytinyağı"], ["Kuru fasulye", "Ton balığı", "Kırmızı soğan", "Limon suyu"]],
+    times: [10, 15, 20, 30], diets: [["vegan", "vegetarian"], ["vegan", "vegetarian"], ["vegetarian", "gluten_free", "low_carb"], ["gluten_free", "low_carb"], ["vegan", "vegetarian", "gluten_free"]],
+  },
+  {
+    cuisine: "İtalyan mutfağı", category: "Tatlı",
+    names: ["Panna Cotta", "Zabaglione", "Limonlu Sorbe", "Bademli Biscotti", "Affogato"],
+    ingredientSets: [["Krema", "Süt", "Toz şeker", "Vanilin"], ["Yumurta", "Toz şeker", "Kahve"], ["Limon suyu", "Toz şeker", "Su"], ["Un", "Badem", "Yumurta", "Toz şeker"], ["Kahve", "Dondurma"]],
+    times: [10, 30, 45, 60], diets: [["vegetarian", "gluten_free"], ["vegetarian", "gluten_free"], ["vegan", "vegetarian", "gluten_free", "low_calorie"], ["vegetarian"], ["vegetarian", "gluten_free"]],
+  },
+  {
+    cuisine: "Asya mutfağı", category: "Ana yemek",
+    names: ["Sebzeli Tofu Wok", "Tavuklu Teriyaki", "Pad Thai", "Sushi Bowl", "Kore Usulü Dana", "Sebzeli Udon", "Miso Noodle", "Tayland Fesleğenli Tavuk", "Kore Usulü Tofu", "Hindistan Cevizli Sebze", "Soya Soslu Mantar", "Asya Usulü Balık"],
+    ingredientSets: [["Tofu", "Brokoli", "Havuç", "Soya sosu"], ["Tavuk göğsü", "Soya sosu", "Zencefil", "Mısır"], ["Pirinç eriştesi", "Yumurta", "Mısır", "Soya sosu"], ["Pirinç", "Avokado", "Salatalık", "Ton balığı"], ["Dana eti", "Soğan", "Soya sosu", "Zencefil"], ["Makarna", "Brokoli", "Mantar", "Soya sosu"]],
+    times: [15, 25, 30, 45], diets: [["vegan", "vegetarian"], ["gluten_free"], ["vegetarian"], ["gluten_free", "low_calorie"], ["gluten_free", "low_carb"], ["vegan", "vegetarian"]],
+  },
+  {
+    cuisine: "Asya mutfağı", category: "Çorba",
+    names: ["Miso Çorbası", "Tom Yum", "Ramen Sebzeli", "Hindistan Cevizli Mercimek Çorbası", "Kore Tofu Çorbası"],
+    ingredientSets: [["Tofu", "Mantar", "Soğan", "Soya sosu"], ["Karides", "Mantar", "Limon suyu", "Kırmızı köri"], ["Makarna", "Mantar", "Brokoli", "Yumurta"], ["Mercimek", "Hindistan cevizi sütü", "Havuç", "Zencefil"]],
+    times: [15, 30, 45], diets: [["vegan", "vegetarian", "gluten_free"], ["gluten_free", "low_calorie"], ["vegetarian"], ["vegan", "vegetarian", "gluten_free"]],
+  },
+  {
+    cuisine: "Asya mutfağı", category: "Salata/meze",
+    names: ["Edamame Salatası", "Vietnam Usulü Lahana Salatası", "Susamlı Brokoli", "Mango Avokado Salatası", "Kore Salatalık Mezesi"],
+    ingredientSets: [["Bezelye", "Salatalık", "Susam yağı", "Limon suyu"], ["Lahana", "Havuç", "Kişniş", "Pirinç sirkesi"], ["Brokoli", "Susam", "Soya sosu", "Susam yağı"], ["Mango", "Avokado", "Kırmızı soğan", "Limon suyu"]],
+    times: [10, 15, 20, 30], diets: [["vegan", "vegetarian", "gluten_free", "low_calorie"], ["vegan", "vegetarian", "gluten_free"], ["vegan", "vegetarian"], ["vegan", "vegetarian", "gluten_free", "low_calorie"]],
+  },
+  {
+    cuisine: "Meksika mutfağı", category: "Ana yemek",
+    names: ["Tavuklu Fajita", "Sebzeli Burrito", "Enchilada Tavuklu", "Fasulyeli Tacos", "Meksika Pilavı", "Mısır ve Kabak Sotesi", "Balıklı Taco", "Etli Nachos", "Kırmızı Fasulye Güveci", "Tavuklu Mısır Kasesi"],
+    ingredientSets: [["Tavuk göğsü", "Kırmızı biber", "Soğan", "Tortilla"], ["Nohut", "Mısır", "Avokado", "Tortilla"], ["Tavuk göğsü", "Domates sosu", "Mısır", "Kaşar peyniri"], ["Kuru fasulye", "Mısır", "Avokado", "Tortilla"], ["Pirinç", "Domates", "Mısır", "Kırmızı biber"]],
+    times: [20, 30, 45, 60], diets: [["gluten_free"], ["vegan", "vegetarian"], ["gluten_free"], ["vegan", "vegetarian", "gluten_free"], ["vegan", "vegetarian", "gluten_free"]],
+  },
+  {
+    cuisine: "Meksika mutfağı", category: "Çorba",
+    names: ["Meksika Fasulye Çorbası", "Tortilla Çorbası", "Mısır Çorbası", "Acılı Domates Çorbası"],
+    ingredientSets: [["Kuru fasulye", "Domates", "Mısır", "Soğan"], ["Domates", "Tortilla", "Avokado", "Soğan"], ["Mısır", "Patates", "Soğan", "Süt"], ["Domates", "Kırmızı biber", "Soğan", "Limon suyu"]],
+    times: [15, 30, 45], diets: [["vegan", "vegetarian", "gluten_free"], ["vegan", "vegetarian"], ["vegetarian", "gluten_free"], ["vegan", "vegetarian", "gluten_free", "low_calorie"]],
+  },
+  {
+    cuisine: "Meksika mutfağı", category: "Salata/meze",
+    names: ["Pico de Gallo", "Meksika Fasulye Salatası", "Mısır Salsa", "Avokadolu Nohut Salatası"],
+    ingredientSets: [["Domates", "Kırmızı soğan", "Kişniş", "Limon suyu"], ["Kuru fasulye", "Mısır", "Domates", "Avokado"], ["Mısır", "Domates", "Kırmızı biber", "Limon suyu"], ["Nohut", "Avokado", "Salatalık", "Limon suyu"]],
+    times: [10, 15, 20], diets: [["vegan", "vegetarian", "gluten_free", "low_calorie"], ["vegan", "vegetarian", "gluten_free"], ["vegan", "vegetarian", "gluten_free", "low_calorie"], ["vegan", "vegetarian", "gluten_free"]],
+  },
+  {
+    cuisine: "Meksika mutfağı", category: "Tatlı",
+    names: ["Meksika Churros", "Tarçınlı Mısır Tatlısı", "Mango Sorbe", "Kakaolu Avokado Puding"],
+    ingredientSets: [["Un", "Yumurta", "Toz şeker", "Tarçın"], ["Mısır", "Süt", "Toz şeker", "Tarçın"], ["Mango", "Limon suyu", "Toz şeker"], ["Avokado", "Kakao", "Akçaağaç şurubu"]],
+    times: [15, 30, 45], diets: [["vegetarian"], ["vegetarian", "gluten_free"], ["vegan", "vegetarian", "gluten_free", "low_calorie"], ["vegan", "vegetarian", "gluten_free"]],
+  },
+  {
+    cuisine: "Akdeniz mutfağı", category: "Ana yemek",
+    names: ["Ton Balıklı Nicoise", "Fırında Sebzeli Levrek", "Karidesli Kabak", "Zeytinli Tavuk", "Akdeniz Sebze Güveci", "Limonlu Karides", "Fırında Kuzu Sebzeli", "Mercimekli Akdeniz Tabağı", "Fesleğenli Tavuk", "Kabaklı Nohut Tavası"],
+    ingredientSets: [["Ton balığı", "Yumurta", "Patates", "Salatalık"], ["Somon fileto", "Kabak", "Domates", "Limon suyu"], ["Karides", "Kabak", "Sarımsak", "Zeytinyağı"], ["Tavuk göğsü", "Zeytin", "Domates", "Kırmızı biber"], ["Patlıcan", "Kabak", "Domates", "Nohut"]],
+    times: [20, 30, 45, 60], diets: [["gluten_free", "low_carb"], ["gluten_free", "low_calorie"], ["gluten_free", "low_carb"], ["gluten_free", "low_carb"], ["vegan", "vegetarian", "gluten_free", "low_calorie"]],
+  },
+  {
+    cuisine: "Akdeniz mutfağı", category: "Çorba",
+    names: ["Akdeniz Balık Çorbası", "Kabak ve Mercimek Çorbası", "Nohutlu Sebze Çorbası", "Limonlu Tavuk Çorbası"],
+    ingredientSets: [["Somon fileto", "Domates", "Havuç", "Soğan"], ["Kabak", "Mercimek", "Soğan", "Limon suyu"], ["Nohut", "Brokoli", "Havuç", "Domates"], ["Tavuk göğsü", "Yumurta", "Limon suyu", "Pirinç"]],
+    times: [15, 30, 45], diets: [["gluten_free", "low_carb"], ["vegan", "vegetarian", "gluten_free", "low_calorie"], ["vegan", "vegetarian", "gluten_free"], ["gluten_free"]],
+  },
+  {
+    cuisine: "Akdeniz mutfağı", category: "Salata/meze",
+    names: ["Yunan Salatası", "Tabule", "Zeytinli Nohut Salatası", "Tahinli Karnabahar", "Akdeniz Ton Balığı Salatası"],
+    ingredientSets: [["Domates", "Salatalık", "Beyaz peynir", "Zeytin"], ["İnce bulgur", "Maydanoz", "Domates", "Limon suyu"], ["Nohut", "Zeytin", "Kırmızı soğan", "Limon suyu"], ["Karnabahar", "Tahin", "Limon suyu", "Sarımsak"], ["Ton balığı", "Salatalık", "Domates", "Zeytinyağı"]],
+    times: [10, 15, 20, 30], diets: [["vegetarian", "gluten_free"], ["vegan", "vegetarian"], ["vegan", "vegetarian", "gluten_free"], ["vegan", "vegetarian", "gluten_free", "low_calorie"], ["gluten_free", "low_carb"]],
+  },
+  {
+    cuisine: "Hint mutfağı", category: "Ana yemek",
+    names: ["Chana Masala", "Palak Tofu", "Aloo Gobi", "Tavuk Tikka Masala", "Sebzeli Biryani", "Dal Tadka", "Kokoslu Karides", "Hint Usulü Mercimek", "Paneer Tikka", "Mango Chutney Tavuk", "Korma Sebzeli", "Hint Usulü Patates", "Masala Tofu", "Bezelyeli Biryani", "Baharatlı Nohut"],
+    ingredientSets: [["Nohut", "Domates", "Soğan", "Kırmızı köri"], ["Tofu", "Ispanak", "Hindistan cevizi sütü", "Zencefil"], ["Patates", "Karnabahar", "Domates", "Kırmızı köri"], ["Tavuk göğsü", "Yoğurt", "Domates", "Kırmızı köri"]],
+    times: [20, 30, 45, 60], diets: [["vegan", "vegetarian", "gluten_free"], ["vegan", "vegetarian", "gluten_free"], ["vegan", "vegetarian", "gluten_free"], ["gluten_free"], ["vegetarian", "gluten_free"]],
+  },
+  {
+    cuisine: "Hint mutfağı", category: "Çorba",
+    names: ["Mulligatawny", "Hint Domates Çorbası", "Köri Kabak Çorbası", "Nohutlu Hindistan Çorbası", "Ispanaklı Dal", "Hint Mercimek Çorbası", "Karnabahar Çorbası", "Zencefilli Havuç Çorbası", "Köri Mantar Çorbası", "Baharatlı Bezelye Çorbası"],
+    ingredientSets: [["Mercimek", "Havuç", "Hindistan cevizi sütü", "Kırmızı köri"], ["Domates", "Soğan", "Zencefil", "Kırmızı köri"], ["Kabak", "Soğan", "Hindistan cevizi sütü", "Kırmızı köri"]],
+    times: [15, 30, 45], diets: [["vegan", "vegetarian", "gluten_free", "low_calorie"], ["vegan", "vegetarian", "gluten_free"], ["vegan", "vegetarian", "gluten_free"]],
+  },
+  {
+    cuisine: "Fransız mutfağı", category: "Ana yemek",
+    names: ["Sebzeli Ratatouille", "Coq au Vin", "Somon Meuniere", "Mercimekli Fransız Güveci", "Kremalı Mantar", "Nicoise Usulü Balık", "Sebzeli Galette", "Tavuk Provençal", "Karnabahar Graten", "Fırında Pırasa", "Fransız Usulü Omlet", "Fransız Usulü Bezelye", "Kabaklı Kiş", "Biberli Dana Sote", "Ispanaklı Krep", "Mantar Bourguignon"],
+    ingredientSets: [["Kabak", "Patlıcan", "Domates", "Soğan"], ["Tavuk göğsü", "Mantar", "Havuç", "Soğan"], ["Somon fileto", "Limon suyu", "Tereyağı", "Maydanoz"], ["Mercimek", "Havuç", "Soğan", "Domates"], ["Mantar", "Süt", "Tereyağı", "Sarımsak"]],
+    times: [15, 30, 45, 60], diets: [["vegan", "vegetarian", "gluten_free", "low_calorie"], ["gluten_free"], ["gluten_free", "low_carb"], ["vegan", "vegetarian", "gluten_free"], ["vegetarian", "gluten_free"]],
+  },
+  {
+    cuisine: "Fransız mutfağı", category: "Tatlı",
+    names: ["Elmalı Tarte Tatin", "Çikolatalı Mousse", "Limonlu Tart", "Krep Suzette", "Çilekli Yoğurt Parfe"],
+    ingredientSets: [["Elma", "Un", "Tereyağı", "Toz şeker"], ["Kakao", "Yumurta", "Krema", "Toz şeker"], ["Limon suyu", "Un", "Yumurta", "Toz şeker"], ["Un", "Yumurta", "Portakal", "Tereyağı"], ["Yoğurt", "Çilek", "Akçaağaç şurubu"]],
+    times: [15, 30, 45, 60], diets: [["vegetarian"], ["vegetarian", "gluten_free"], ["vegetarian"], ["vegetarian"], ["vegetarian", "gluten_free", "low_calorie"]],
+  },
+]);
 
 const pantryStaples = new Set([
   "Su",
@@ -745,6 +1109,16 @@ const pantryStaples = new Set([
   "Sıvı yağ",
   "Toz şeker",
   "Tarçın",
+  "Kekik",
+  "Fesleğen",
+  "Biberiye",
+  "Kimyon",
+  "Köri",
+  "Zencefil",
+  "Pirinç sirkesi",
+  "Susam yağı",
+  "Susam",
+  "Kakao",
 ]);
 
 function upsertRecipe(recipe: SeedRecipe): number {
@@ -759,7 +1133,7 @@ function upsertRecipe(recipe: SeedRecipe): number {
       .set({
         name: recipe.name,
         category: recipe.category,
-        cuisine: CUISINE,
+        cuisine: recipe.cuisine ?? CUISINE,
         timeMinutes: recipe.timeMinutes,
         difficulty: recipe.difficulty,
         baseServings: recipe.baseServings,
@@ -777,7 +1151,7 @@ function upsertRecipe(recipe: SeedRecipe): number {
       slug: recipe.slug,
       name: recipe.name,
       category: recipe.category,
-      cuisine: CUISINE,
+      cuisine: recipe.cuisine ?? CUISINE,
       timeMinutes: recipe.timeMinutes,
       difficulty: recipe.difficulty,
       baseServings: recipe.baseServings,
@@ -814,7 +1188,7 @@ function upsertIngredient(item: SeedIngredient): number {
 }
 
 db.transaction(() => {
-  for (const recipe of seedRecipes) {
+  for (const recipe of [...seedRecipes, ...additionalRecipes]) {
     const recipeId = upsertRecipe(recipe);
 
     db.delete(recipeIngredients)

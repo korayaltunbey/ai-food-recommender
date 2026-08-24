@@ -1,21 +1,15 @@
-// /api/recipe — seçilen yemeğin tam tarifini üreten uç.
-// Kullanıcı öneri listesinden bir yemek seçtiğinde bu uç çağrılır;
-// kişi sayısına ölçeklenmiş ölçülerle tam tarif döndürülür.
+// /api/recipe — SQLite tarif kataloğundan seçilen tarifin tam verisini döndürür.
 
 import { NextResponse } from "next/server";
-import { callDeepSeek } from "@/lib/deepseek"; // ortak API çağrısı
-import {
-  buildRecipeUserPrompt,
-  parseRecipe,
-  RECIPE_SYSTEM_PROMPT,
-} from "@/lib/recipes"; // tarif promptu ve doğrulayıcı
-import { parseRecipeRequest } from "@/lib/requests"; // istek doğrulama
+import { findRecipes } from "@/lib/recipe-repository";
+import { getMissingIngredients, normalizeSearchText } from "@/lib/recommendations";
+import { mapDatabaseRecipeToRecipe } from "@/lib/recipe-mapper";
+import { parseRecipeRequest } from "@/lib/requests";
 
-// Sunucu işlevinin en fazla çalışabileceği süre (Vercel limiti)
-export const maxDuration = 60;
+// better-sqlite3 yalnızca Node.js runtime'ında çalışır.
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  // İstek gövdesini JSON olarak çöz; geçersizse 400 döndür
   let body: unknown;
   try {
     body = await request.json();
@@ -23,29 +17,39 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Geçersiz istek gövdesi" }, { status: 400 });
   }
 
-  // Ortak alanları + seçilen yemek adını doğrula
   const { req, dishName, error } = parseRecipeRequest(body);
   if (error || !req || !dishName) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
   try {
-    // DeepSeek'ten tam tarif JSON'unu al (seçilen yemek adıyla)
-    const parsed = await callDeepSeek(
-      RECIPE_SYSTEM_PROMPT,
-      buildRecipeUserPrompt({ ...req, dishName }),
-      1500 // tarif için daha geniş token bütçesi
+    const normalizedDishName = normalizeSearchText(dishName);
+    const recipe = findRecipes().find(
+      (candidate) => normalizeSearchText(candidate.name) === normalizedDishName
     );
-    // Gelen JSON'u doğrula ve Recipe nesnesine çevir
-    const recipe = parseRecipe(parsed);
-    return NextResponse.json({ recipe });
+
+    if (!recipe) {
+      return NextResponse.json(
+        { error: "Seçilen tarif bulunamadı." },
+        { status: 404 }
+      );
+    }
+
+    const missingIngredients =
+      req.mode === "dolap"
+        ? getMissingIngredients(recipe, req.ingredients)
+        : [];
+    const mappedRecipe = mapDatabaseRecipeToRecipe(recipe, {
+      servings: req.servings,
+      missingIngredients,
+    });
+
+    return NextResponse.json({ recipe: mappedRecipe });
   } catch (err) {
-    console.error("Tarif üretilirken hata:", err);
-    // API anahtarı eksikse anlaşılır mesaj, değilse genel hata
-    const message =
-      err instanceof Error && err.message.includes("API anahtarı")
-        ? "Sunucuda DEEPSEEK_API_KEY tanımlı değil. .env.local dosyasına ekleyin."
-        : "Tarif üretilemedi. Lütfen tekrar deneyin.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("Yerel tarif yüklenirken hata:", err);
+    return NextResponse.json(
+      { error: "Tarif yüklenemedi. Lütfen tekrar deneyin." },
+      { status: 500 }
+    );
   }
 }

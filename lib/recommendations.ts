@@ -21,6 +21,7 @@ export interface RecommendationRequest {
 export interface LocalDishSuggestion extends DishSuggestion {
   id: number;
   slug: string;
+  ingredientCoverage: number;
   matchedIngredientCount: number;
   matchScore: number;
 }
@@ -53,6 +54,54 @@ export function normalizeSearchText(value: string): string {
     .replace(/\s+/g, " ");
 }
 
+function singularizeToken(token: string): string {
+  if (token.length <= 4) return token;
+  if (token.endsWith("lar") || token.endsWith("ler")) {
+    return token.slice(0, -3);
+  }
+  return token;
+}
+
+function getIngredientKeys(value: string): string[] {
+  const normalized = normalizeSearchText(value);
+  if (!normalized) return [];
+
+  const singular = normalized
+    .split(" ")
+    .map(singularizeToken)
+    .join(" ");
+
+  return singular === normalized ? [normalized] : [normalized, singular];
+}
+
+function buildIngredientKeySet(values: string[]): Set<string> {
+  return new Set(values.flatMap(getIngredientKeys));
+}
+
+function containsIngredientKey(recipeKey: string, userKey: string): boolean {
+  const recipeTokens = recipeKey.split(" ");
+  const userTokens = userKey.split(" ");
+  if (userTokens.length > recipeTokens.length) return false;
+
+  return recipeTokens.some((_, start) =>
+    userTokens.every(
+      (token, offset) => recipeTokens[start + offset] === token
+    )
+  );
+}
+
+function ingredientMatches(
+  userIngredientKeys: Set<string>,
+  recipeIngredient: DatabaseRecipeIngredient
+): boolean {
+  return getIngredientKeys(recipeIngredient.name).some((recipeKey) =>
+    [...userIngredientKeys].some(
+      (userKey) =>
+        userKey === recipeKey || containsIngredientKey(recipeKey, userKey)
+    )
+  );
+}
+
 function toDietCode(value: string | undefined): string | undefined {
   if (!value?.trim()) return undefined;
   const normalized = normalizeSearchText(value);
@@ -81,30 +130,40 @@ export function getMissingIngredients(
   recipe: DatabaseRecipe,
   userIngredients: string[]
 ): string[] {
-  const userIngredientSet = new Set(
-    userIngredients.map(normalizeSearchText).filter((name) => name.length > 0)
-  );
+  const userIngredientSet = buildIngredientKeySet(userIngredients);
 
   return getRequiredIngredients(recipe.ingredients)
-    .filter((ingredient) => !userIngredientSet.has(ingredient.normalizedName))
+    .filter((ingredient) => !ingredientMatches(userIngredientSet, ingredient))
     .map((ingredient) => ingredient.name);
 }
 
 function calculateMatch(
   recipe: DatabaseRecipe,
+  userIngredientValues: string[],
   userIngredients: Set<string>
-): { matchedIngredientCount: number; matchScore: number } {
+): {
+  ingredientCoverage: number;
+  matchedIngredientCount: number;
+  matchScore: number;
+} {
   if (userIngredients.size === 0) {
-    return { matchedIngredientCount: 0, matchScore: 0 };
+    return { ingredientCoverage: 0, matchedIngredientCount: 0, matchScore: 0 };
   }
 
+  const ingredientCoverage = userIngredientValues.filter((userIngredient) => {
+    const userIngredientKeys = buildIngredientKeySet([userIngredient]);
+    return recipe.ingredients.some((ingredient) =>
+      ingredientMatches(userIngredientKeys, ingredient)
+    );
+  }).length;
+
   const matchedIngredientCount = recipe.ingredients.filter((ingredient) =>
-    userIngredients.has(ingredient.normalizedName)
+    ingredientMatches(userIngredients, ingredient)
   ).length;
 
   const requiredIngredients = getRequiredIngredients(recipe.ingredients);
   const matchedRequiredCount = requiredIngredients.filter((ingredient) =>
-    userIngredients.has(ingredient.normalizedName)
+    ingredientMatches(userIngredients, ingredient)
   ).length;
 
   const matchScore =
@@ -112,7 +171,7 @@ function calculateMatch(
       ? 0
       : matchedRequiredCount / requiredIngredients.length;
 
-  return { matchedIngredientCount, matchScore };
+  return { ingredientCoverage, matchedIngredientCount, matchScore };
 }
 
 function isExcluded(
@@ -124,7 +183,7 @@ function isExcluded(
   if (recipeNames.some((name) => excludeNames.has(name))) return true;
 
   return recipe.ingredients.some((ingredient) =>
-    excludeIngredients.has(ingredient.normalizedName)
+    ingredientMatches(excludeIngredients, ingredient)
   );
 }
 
@@ -143,11 +202,14 @@ function buildReason(
 export function getRecommendations(
   request: RecommendationRequest = {}
 ): LocalDishSuggestion[] {
-  const userIngredients = new Set(
-    (request.ingredients ?? [])
-      .map(normalizeSearchText)
-      .filter((ingredient) => ingredient.length > 0)
+  const userIngredientValues = Array.from(
+    new Set(
+      (request.ingredients ?? [])
+        .map(normalizeSearchText)
+        .filter((ingredient) => ingredient.length > 0)
+    )
   );
+  const userIngredients = buildIngredientKeySet(userIngredientValues);
   const excludeNames = new Set(
     (request.excludeNames ?? [])
       .map(normalizeSearchText)
@@ -170,27 +232,34 @@ export function getRecommendations(
   const limit = Math.min(Math.max(Math.round(request.limit ?? DEFAULT_LIMIT), 1), 20);
 
   return recipes
-    .filter((recipe) =>
-      !isExcluded(recipe, excludeNames, excludeIngredients)
-    )
+    .filter((recipe) => !isExcluded(recipe, excludeNames, excludeIngredients))
     .map((recipe) => {
-      const match = calculateMatch(recipe, userIngredients);
+      const match = calculateMatch(recipe, userIngredientValues, userIngredients);
       return {
-        id: recipe.id,
-        slug: recipe.slug,
-        name: recipe.name,
-        type: recipe.category,
-        reason: buildReason(
-          recipe,
-          match.matchedIngredientCount,
-          hasIngredientFilter
-        ),
-        matchedIngredientCount: match.matchedIngredientCount,
-        matchScore: match.matchScore,
-        timeMinutes: recipe.timeMinutes,
+        recipe,
+        ...match,
       };
     })
+    // Dolap modunda alakasız tarifleri score ile listeye sokma.
+    .filter(
+      ({ matchedIngredientCount }) =>
+        !hasIngredientFilter || matchedIngredientCount > 0
+    )
+    .map(({ recipe, ingredientCoverage, matchedIngredientCount, matchScore }) => ({
+      id: recipe.id,
+      slug: recipe.slug,
+      name: recipe.name,
+      type: recipe.category,
+      reason: buildReason(recipe, matchedIngredientCount, hasIngredientFilter),
+      ingredientCoverage,
+      matchedIngredientCount,
+      matchScore,
+      timeMinutes: recipe.timeMinutes,
+    }))
     .sort((a, b) => {
+      if (hasIngredientFilter && b.ingredientCoverage !== a.ingredientCoverage) {
+        return b.ingredientCoverage - a.ingredientCoverage;
+      }
       if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
       if (b.matchedIngredientCount !== a.matchedIngredientCount) {
         return b.matchedIngredientCount - a.matchedIngredientCount;
@@ -205,6 +274,7 @@ export function getRecommendations(
       name: suggestion.name,
       type: suggestion.type,
       reason: suggestion.reason,
+      ingredientCoverage: suggestion.ingredientCoverage,
       matchedIngredientCount: suggestion.matchedIngredientCount,
       matchScore: suggestion.matchScore,
     }));
